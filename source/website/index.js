@@ -28,6 +28,9 @@ export function StartWebsite (externalLibLocation)
             fileInput : document.getElementById ('open_file')
         });
         website.Load ();
+        // KubixLab
+        window.OVWebsite = website;
+        // KubixLab
     });
 }
 
