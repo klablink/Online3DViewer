@@ -48,7 +48,6 @@ export class Website
         this.uiState = WebsiteUIState.Undefined;
         this.model = null;
         this.dialog = null;
-        this.locale = null;
     }
 
     Load ()
@@ -56,8 +55,8 @@ export class Website
         this.settings.LoadFromCookies ();
         this.SwitchTheme (this.settings.themeId, false);
         HandleEvent ('theme_on_load', this.settings.themeId === Theme.Light ? 'light' : 'dark');
-        this.locale = new Locale(this.settings.userLang);
-        this.ChangeLocale((this.locale && this.locale._locale) ? this.locale._locale : defaultLocale);
+
+        this.ChangeLocale(isNotEmpty(this.settings.userLang) ? this.settings.userLang : defaultLocale);
 
         this.ChangeLocale(isNotEmpty(this.settings.userLang) ? this.settings.userLang : defaultLocale);
 
