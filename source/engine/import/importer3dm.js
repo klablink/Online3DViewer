@@ -9,6 +9,7 @@ import { Property, PropertyGroup, PropertyType } from '../model/property.js';
 import { ConvertThreeGeometryToMesh } from '../threejs/threeutils.js';
 import { ImporterBase } from './importerbase.js';
 import { UpdateMaterialTransparency } from './importerutils.js';
+import {localize} from "../../i18n/locale";
 
 export class Importer3dm extends ImporterBase
 {
@@ -62,12 +63,12 @@ export class Importer3dm extends ImporterBase
 	{
 		let rhinoDoc = this.rhino.File3dm.fromByteArray (fileContent);
 		if (rhinoDoc === null) {
-			this.SetError ('Failed to read Rhino file.');
+			this.SetError (localize('failedToReadRhinoFile', 'Failed to read Rhino file.'));
 			return;
 		}
 		this.ImportRhinoDocument (rhinoDoc);
         if (IsModelEmpty (this.model)) {
-			this.SetError ('The model doesn\'t contain any 3D meshes. Try to save the model while you are in shaded view in Rhino.');
+			this.SetError (localize("modelNotContain3DMeshesSaveInRhino","The model doesn't contain any 3D meshes. Try to save the model while you are in shaded view in Rhino."));
         }
 	}
 
@@ -99,7 +100,7 @@ export class Importer3dm extends ImporterBase
 	{
 		let docStrings = rhinoDoc.strings ();
 		if (docStrings.count () > 0) {
-			let propertyGroup = new PropertyGroup ('Document user texts');
+			let propertyGroup = new PropertyGroup (localize('documentUserTexts',  'Document user texts'));
 			for (let i = 0; i < docStrings.count (); i++) {
 				let docString = docStrings.get (i);
 				propertyGroup.AddProperty (new Property (PropertyType.Text, docString[0], docString[1]));
@@ -191,7 +192,7 @@ export class Importer3dm extends ImporterBase
 
 		let userStrings = rhinoAttributes.getUserStrings ();
 		if (userStrings.length > 0) {
-			let propertyGroup = new PropertyGroup ('User texts');
+			let propertyGroup = new PropertyGroup (localize('userTexts',  'User texts'));
 			for (let i = 0; i < userStrings.length; i++) {
 				let userString = userStrings[i];
 				propertyGroup.AddProperty (new Property (PropertyType.Text, userString[0], userString[1]));

@@ -11,6 +11,7 @@ import { ButtonDialog, ProgressDialog } from './modal.js';
 import { DownloadArrayBufferAsFile, DownloadUrlAsFile } from './utils.js';
 import { CookieGetStringVal, CookieSetStringVal } from './cookiehandler.js';
 import { HandleEvent } from './eventhandler.js';
+import {localize} from "../i18n/locale";
 
 export const ExportType =
 {
@@ -67,8 +68,8 @@ export class ModelExporterUI extends ExporterUI
 
     GenerateParametersUI (parametersDiv)
     {
-        this.visibleOnlySelect = this.AddSelectItem (parametersDiv, 'Scope', ['Entire Model', 'Visible Only'], 1);
-        this.rotationSelect = this.AddSelectItem (parametersDiv, 'Rotation', ['No Rotation', '-90 Degrees', '90 Degrees'], 0);
+        this.visibleOnlySelect = this.AddSelectItem (parametersDiv, localize('scope', 'Scope'), [localize('entireModel', 'Entire Model'), localize('visibleOnly', 'Visible Only')], 1);
+        this.rotationSelect = this.AddSelectItem (parametersDiv, localize('rotation', 'Rotation'), [localize('noRotation', 'No Rotation'), localize('-90Degrees', '-90 Degrees'), localize('+90Degrees', '90 Degrees')], 0);
     }
 
     ExportModel (model, callbacks)
@@ -91,8 +92,8 @@ export class ModelExporterUI extends ExporterUI
         let exporterModel = new ExporterModel (model, settings);
         if (exporterModel.MeshInstanceCount () === 0) {
             let errorDialog = ShowMessageDialog (
-                'Export Failed',
-                'The model doesn\'t contain any meshes.',
+                localize('exportFailed', 'Export Failed'),
+                localize("modelWithNoMeshes","The model doesn't contain any meshes."),
                 null
             );
             callbacks.onDialog (errorDialog);
@@ -100,7 +101,7 @@ export class ModelExporterUI extends ExporterUI
         }
 
         let progressDialog = new ProgressDialog ();
-        progressDialog.Init ('Exporting Model');
+        progressDialog.Init (localize('exportingModel', 'Exporting Model'));
         progressDialog.Show ();
 
         RunTaskAsync (() => {
@@ -144,7 +145,7 @@ export class ImageExporterUI extends ExporterUI
         this.extension = extension;
         this.sizeSelect = null;
         this.sizes = [
-            { name : 'Current size', value : null },
+            { name : localize('currentSize', 'Current size'), value : null },
             { name : '1280 x 720', value : [1280, 720] },
             { name : '1920 x 1080', value : [1920, 1080] }
         ];
@@ -158,7 +159,7 @@ export class ImageExporterUI extends ExporterUI
     GenerateParametersUI (parametersDiv)
     {
         let sizeNames = this.sizes.map (size => size.name);
-        this.sizeSelect = this.AddSelectItem (parametersDiv, 'Image size', sizeNames, 1);
+        this.sizeSelect = this.AddSelectItem (parametersDiv, localize('imageSize', 'Image size'), sizeNames, 1);
     }
 
     ExportImage (viewer)
@@ -200,16 +201,16 @@ export class ExportDialog
     Show (model, viewer)
     {
         let mainDialog = new ButtonDialog ();
-        let contentDiv = mainDialog.Init ('Export', [
+        let contentDiv = mainDialog.Init (localize('export', 'Export'), [
             {
-                name : 'Close',
+                name : localize('close', 'Close'),
                 subClass : 'outline',
                 onClick () {
                     mainDialog.Hide ();
                 }
             },
             {
-                name : 'Export',
+                name : localize('export', 'Export'),
                 onClick : () => {
                     mainDialog.Hide ();
                     this.ExportFormat (model, viewer);
@@ -217,7 +218,8 @@ export class ExportDialog
             }
         ]);
 
-        let text = 'Select the format from the list below, and adjust the settings of the selected format.';
+        let textdft = 'Select the format from the list below, and adjust the settings of the selected format.';
+        let text = localize('selectFormatFromList', textdft);
         AddDiv (contentDiv, 'ov_dialog_section', text);
 
         let formatRow = AddDiv (contentDiv, 'ov_dialog_row');

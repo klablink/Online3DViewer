@@ -5,6 +5,7 @@ import { CalculatePopupPositionToElementBottomRight, ShowListPopup } from './dia
 import { MeshItem, NavigatorItemRecurse, NodeItem } from './navigatoritems.js';
 import { NavigatorPanel, NavigatorPopupButton } from './navigatorpanel.js';
 import { AddSvgIconElement, GetMaterialName, GetMeshName, GetNodeName, SetSvgIconImageElement } from './utils.js';
+import {localize} from "../i18n/locale";
 
 export class NavigatorMaterialsPopupButton extends NavigatorPopupButton
 {
@@ -21,8 +22,8 @@ export class NavigatorMaterialsPopupButton extends NavigatorPopupButton
             return;
         }
 
-        let materialsText = 'Materials (' + this.materialInfoArray.length + ')';
-        this.buttonText.innerHTML = materialsText;
+        let textdft = 'Materials (' + this.materialInfoArray.length + ')';
+        this.buttonText.innerHTML = localize('materialsInfoLength', textdft, {materialInfoArrayLength: this.materialInfoArray.length});
     }
 
     OnButtonClick ()
@@ -80,7 +81,7 @@ export class NavigatorMeshesPanel extends NavigatorPanel
 
     GetName ()
     {
-        return 'Meshes';
+        return localize('meshes', 'Meshes');
     }
 
     GetIcon ()
@@ -195,38 +196,38 @@ export class NavigatorMeshesPanel extends NavigatorPanel
 
         this.buttons = {
             flatList : {
-                name : 'Flat list',
+                name : localize('flatList', 'Flat list'),
                 icon : 'flat_list',
                 div : null,
                 iconDiv : null
             },
             treeView : {
-                name : 'Tree view',
+                name : localize('treeView', 'Tree view'),
                 icon : 'tree_view',
                 div : null,
                 iconDiv : null
             },
             separator : null,
             expandAll : {
-                name : 'Expand all',
+                name : localize('expandAll', 'Expand all'),
                 icon : 'expand',
                 div : null,
                 iconDiv : null
             },
             collapseAll : {
-                name : 'Collapse all',
+                name : localize('collapseAll', 'Collapse all'),
                 icon : 'collapse',
                 div : null,
                 iconDiv : null
             },
             showHideMeshes : {
-                name : 'Show/hide meshes',
+                name : localize('showHideMeshes','Show/hide meshes'),
                 icon : 'visible',
                 div : null,
                 iconDiv : null
             },
             fitToWindow : {
-                name : 'Fit meshes to window',
+                name : localize('fitMeshesToWindow', 'Fit meshes to window'),
                 icon : 'fit',
                 div : null,
                 iconDiv : null

@@ -20,6 +20,7 @@ import { HasDefaultMaterial, ReplaceDefaultMaterialColor } from '../engine/model
 import { Direction } from '../engine/geometry/geometry.js';
 import { CookieGetBoolVal, CookieSetBoolVal } from './cookiehandler.js';
 import { ShadingType } from '../engine/threejs/threeutils.js';
+import Locale, {defaultLocale, localize} from "../i18n/locale";
 
 export const WebsiteUIState =
 {
@@ -47,6 +48,7 @@ export class Website
         this.uiState = WebsiteUIState.Undefined;
         this.model = null;
         this.dialog = null;
+        this.locale = null;
     }
 
     Load ()
@@ -54,6 +56,8 @@ export class Website
         this.settings.LoadFromCookies ();
         this.SwitchTheme (this.settings.themeId, false);
         HandleEvent ('theme_on_load', this.settings.themeId === Theme.Light ? 'light' : 'dark');
+        this.locale = new Locale(this.settings.userLang);
+        this.ChangeLocale((this.locale && this.locale._locale) ? this.locale._locale : defaultLocale);
 
         this.InitViewer ();
         this.InitMeasureTool ();
@@ -212,7 +216,7 @@ export class Website
         let items = [];
         if (meshUserData === null) {
             items.push ({
-                name : 'Fit model to window',
+                name : localize('fitModelToWindow', 'Fit model to window'),
                 icon : 'fit',
                 onClick : () => {
                     this.FitModelToWindow (false);
@@ -220,7 +224,7 @@ export class Website
             });
             if (this.navigator.HasHiddenMesh ()) {
                 items.push ({
-                    name : 'Show all meshes',
+                    name : localize('showAllMeshes', 'Show all meshes'),
                     icon : 'visible',
                     onClick : () => {
                         this.navigator.ShowAllMeshes (true);
@@ -229,14 +233,14 @@ export class Website
             }
         } else {
             items.push ({
-                name : 'Hide mesh',
+                name : localize('hideMesh', 'Hide mesh'),
                 icon : 'hidden',
                 onClick : () => {
                     this.navigator.ToggleMeshVisibility (meshUserData.originalMeshId);
                 }
             });
             items.push ({
-                name : 'Fit mesh to window',
+                name : localize('fitMeshToWindow', 'Fit mesh to window'),
                 icon : 'fit',
                 onClick : () => {
                     this.navigator.FitMeshToWindow (meshUserData.originalMeshId);
@@ -245,8 +249,8 @@ export class Website
             if (this.navigator.MeshItemCount () > 1) {
                 let isMeshIsolated = this.navigator.IsMeshIsolated (meshUserData.originalMeshId);
                 items.push ({
-                    name : isMeshIsolated ? 'Remove isolation' : 'Isolate mesh',
-                    icon : isMeshIsolated ? 'deisolate' : 'isolate',
+                    name : isMeshIsolated ? localize('removeIsolation', 'Remove isolation') : localize('isolateMesh', 'Isolate mesh'),
+                    icon : isMeshIsolated ? localize('deisolate','deisolate') : localize('isolate','isolate'),
                     onClick : () => {
                         if (isMeshIsolated) {
                             this.navigator.ShowAllMeshes (true);
@@ -474,6 +478,13 @@ export class Website
         }
     }
 
+    ChangeLocale (newUserLang)
+    {
+        this.locale.setLocale(newUserLang);
+        this.settings.userLang = this.locale.getLocale();
+        this.settings.SaveToCookies ();
+    }
+
     InitViewer ()
     {
         let canvas = AddDomElement (this.parameters.viewerDiv, 'canvas');
@@ -535,10 +546,10 @@ export class Website
 
         let importer = this.modelLoaderUI.GetImporter ();
 
-        AddButton (this.toolbar, 'open', 'Open model from your device', [], () => {
+        AddButton (this.toolbar, 'open', localize('openModelFromYourDevice', 'Open model from your device'), [], () => {
             this.OpenFileBrowserDialog ();
         });
-        AddButton (this.toolbar, 'open_url', 'Open model from a url', [], () => {
+        AddButton (this.toolbar, 'open_url', localize('openModelFromUrl', 'Open model from a url'), [], () => {
             this.dialog = ShowOpenUrlDialog ((urls) => {
                 if (urls.length > 0) {
                     this.hashHandler.SetModelFilesToHash (urls);
@@ -546,20 +557,20 @@ export class Website
             });
         });
         AddSeparator (this.toolbar, ['only_on_model']);
-        AddButton (this.toolbar, 'fit', 'Fit model to window', ['only_on_model'], () => {
+        AddButton (this.toolbar, 'fit', localize("fitModelToWindow", "Fit model to window"), ['only_on_model'], () => {
             this.FitModelToWindow (false);
         });
-        AddButton (this.toolbar, 'up_y', 'Set Y axis as up vector', ['only_on_model'], () => {
+        AddButton (this.toolbar, 'up_y', localize('setYaxisAsUpVector', 'Set Y axis as up vector'), ['only_on_model'], () => {
             this.viewer.SetUpVector (Direction.Y, true);
         });
-        AddButton (this.toolbar, 'up_z', 'Set Z axis as up vector', ['only_on_model'], () => {
+        AddButton (this.toolbar, 'up_z', localize('setZaxisAsUpVector','Set Z axis as up vector'), ['only_on_model'], () => {
             this.viewer.SetUpVector (Direction.Z, true);
         });
-        AddButton (this.toolbar, 'flip', 'Flip up vector', ['only_on_model'], () => {
+        AddButton (this.toolbar, 'flip', localize('flipUpVector', 'Flip up vector'), ['only_on_model'], () => {
             this.viewer.FlipUpVector ();
         });
         AddSeparator (this.toolbar, ['only_on_model']);
-        AddRadioButton (this.toolbar, ['fix_up_on', 'fix_up_off'], ['Fixed up vector', 'Free orbit'], 0, ['only_on_model'], (buttonIndex) => {
+        AddRadioButton (this.toolbar, ['fix_up_on', 'fix_up_off'], [localize('fixedUpVector', 'Fixed up vector'), localize('freeOrbit', 'Free orbit')], 0, ['only_on_model'], (buttonIndex) => {
             if (buttonIndex === 0) {
                 this.viewer.SetFixUpVector (true);
             } else if (buttonIndex === 1) {
@@ -567,7 +578,7 @@ export class Website
             }
         });
         AddSeparator (this.toolbar, ['only_full_width', 'only_on_model']);
-        AddButton (this.toolbar, 'export', 'Export model', ['only_full_width', 'only_on_model'], () => {
+        AddButton (this.toolbar, 'export', localize('exportModel', 'Export model'), ['only_full_width', 'only_on_model'], () => {
             let exportDialog = new ExportDialog ({
                 isMeshVisible : (meshInstanceId) => {
                     return this.navigator.IsMeshVisible (meshInstanceId);
@@ -578,7 +589,7 @@ export class Website
             });
             exportDialog.Show (this.model, this.viewer);
         });
-        AddButton (this.toolbar, 'share', 'Share model', ['only_full_width', 'only_on_model'], () => {
+        AddButton (this.toolbar, 'share', localize('shareModel', 'Share model'), ['only_full_width', 'only_on_model'], () => {
             this.dialog = ShowSharingDialog (importer.GetFileList (), this.settings, this.viewer.GetCamera ());
         });
 
@@ -644,6 +655,9 @@ export class Website
             onThemeChange : () => {
                 HandleEvent ('theme_changed', this.settings.themeId === Theme.Light ? 'light' : 'dark');
                 this.SwitchTheme (this.settings.themeId, true);
+            },
+            onLocaleChange : (newUserLang) => {
+                this.ChangeLocale (newUserLang);
             },
             onMeasureToolActivedChange : (isActivated) => {
                 if (isActivated) {
@@ -777,10 +791,11 @@ export class Website
             return;
         }
 
-        let text = 'This website uses cookies to offer you better user experience. See the details at the <a target="_blank" href="info/cookies.html">Cookies Policy</a> page.';
+        let textdft = 'This website uses cookies to offer you better user experience. See the details at the <a target="_blank" href="info/cookies.html">Cookies Policy</a> page.';
+        let text = localize('cookiePolicyAlert', textdft);
         let popupDiv = AddDiv (document.body, 'ov_bottom_floating_panel');
         AddDiv (popupDiv, 'ov_floating_panel_text', text);
-        let acceptButton = AddDiv (popupDiv, 'ov_button ov_floating_panel_button', 'Accept');
+        let acceptButton = AddDiv (popupDiv, 'ov_button ov_floating_panel_button', localize('accept','Accept'));
         acceptButton.addEventListener ('click', () => {
             CookieSetBoolVal ('ov_cookie_consent', true);
             popupDiv.remove ();

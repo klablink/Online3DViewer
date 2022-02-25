@@ -1,6 +1,7 @@
 import { RadDeg } from '../engine/geometry/geometry.js';
 import { AddDiv, ShowDomElement, ClearDomElement } from '../engine/viewer/domutils.js';
 import { SidebarPanel } from './sidebarpanel.js';
+import {localize} from "../i18n/locale";
 
 export class SidebarMeasurePanel extends SidebarPanel
 {
@@ -15,7 +16,7 @@ export class SidebarMeasurePanel extends SidebarPanel
 
     GetName ()
     {
-        return 'Measure';
+        return localize('measure', 'Measure');
     }
 
     GetIcon ()
@@ -28,15 +29,15 @@ export class SidebarMeasurePanel extends SidebarPanel
         super.Init (callbacks);
 
         let isActive = false;
-        let activateButton = AddDiv (this.contentDiv, 'ov_button ov_panel_button', 'Activate');
+        let activateButton = AddDiv (this.contentDiv, 'ov_button ov_panel_button', localize('activate', 'Activate'));
         activateButton.addEventListener ('click', () => {
             isActive = !isActive;
             if (isActive) {
                 activateButton.classList.add ('outline');
-                activateButton.innerHTML = 'Deactivate';
+                activateButton.innerHTML = localize('deactivate', 'Deactivate');
             } else {
                 activateButton.classList.remove ('outline');
-                activateButton.innerHTML = 'Activate';
+                activateButton.innerHTML = localize('activate', 'Activate');
             }
             this.callbacks.onActivatedChange (isActive);
         });
@@ -58,23 +59,23 @@ export class SidebarMeasurePanel extends SidebarPanel
         if (this.measureTool.IsActive ()) {
             let markerCount = this.measureTool.GetMarkerCount ();
             if (markerCount === 0) {
-                this.helpSection.innerHTML = 'Click on a model point to start measure.';
+                this.helpSection.innerHTML = localize('clickOnPointToStartMeasure', 'Click on a model point to start measure.');
             } else if (markerCount === 1) {
-                this.helpSection.innerHTML = 'Click on another model point to see the results.';
+                this.helpSection.innerHTML = localize('clickOnAnotherPointToSeeResults', 'Click on another model point to see the results.');
             } else if (markerCount === 2) {
                 ShowDomElement (this.helpSection, false);
                 ShowDomElement (this.resultSection, true);
 
                 let calculatedValues = this.measureTool.Calculate ();
 
-                AddDiv (this.resultSection, 'ov_sidebar_measure_name', 'Distance of points');
+                AddDiv (this.resultSection, 'ov_sidebar_measure_name', localize('distanceOfPoints', 'Distance of points'));
                 let pointsDistanceStr = calculatedValues.pointsDistance.toLocaleString (undefined, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 4
                 });
                 AddDiv (this.resultSection, 'ov_sidebar_measure_value', pointsDistanceStr);
 
-                AddDiv (this.resultSection, 'ov_sidebar_measure_name', 'Distance of parallel faces');
+                AddDiv (this.resultSection, 'ov_sidebar_measure_name', localize('distanceOfParallelFaces', 'Distance of parallel faces'));
                 if (calculatedValues.parallelFacesDistance !== null) {
                     let facesDistanceStr = calculatedValues.parallelFacesDistance.toLocaleString (undefined, {
                         minimumFractionDigits: 2,
@@ -82,10 +83,10 @@ export class SidebarMeasurePanel extends SidebarPanel
                     });
                     AddDiv (this.resultSection, 'ov_sidebar_measure_value', facesDistanceStr);
                 } else {
-                    AddDiv (this.resultSection, 'ov_sidebar_measure_value', 'Faces are not parallel');
+                    AddDiv (this.resultSection, 'ov_sidebar_measure_value', localize('facesNotParallel', 'Faces are not parallel'));
                 }
 
-                AddDiv (this.resultSection, 'ov_sidebar_measure_name', 'Angle of faces');
+                AddDiv (this.resultSection, 'ov_sidebar_measure_name', localize('angleOfFaces', 'Angle of faces'));
                 let facesAngleDegree = calculatedValues.facesAngle * RadDeg;
                 let facesAngleStr = facesAngleDegree.toLocaleString (undefined, {
                     minimumFractionDigits: 2,
@@ -102,8 +103,8 @@ export class SidebarMeasurePanel extends SidebarPanel
     GetDefaultHelpText ()
     {
         return `<ol>
-        <li>Activate measure mode with the button above.</li>
-        <li>Click two points in the model to see the results.</li>
+        <li>${localize('activateMeasureModeWithButtonAbove', 'Activate measure mode with the button above.')}</li>
+        <li>${localize('clickTwoPointsToSeeResults', 'Click two points in the model to see the results.')}</li>
         </ol>`;
     }
 

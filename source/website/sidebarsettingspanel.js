@@ -6,6 +6,7 @@ import { PopupDialog } from './modal.js';
 import { Settings, Theme } from './settings.js';
 import { SidebarPanel } from './sidebarpanel.js';
 import { AddSvgIconElement } from './utils.js';
+import {localize} from "../i18n/locale";
 
 function AddColorPicker (parentDiv, defaultColor, predefinedColors, onChange)
 {
@@ -100,7 +101,7 @@ class EnvironmentMapPopup extends PopupDialog
             });
         }
 
-        let backgroundIsEnvMapCheckbox = AddCheckbox (contentDiv, 'use_as_background', 'Use as background', settings.backgroundIsEnvMap, () => {
+        let backgroundIsEnvMapCheckbox = AddCheckbox (contentDiv, 'use_as_background', localize('useAsBackground', 'Use as background'), settings.backgroundIsEnvMap, () => {
             settings.backgroundIsEnvMap = backgroundIsEnvMapCheckbox.checked;
             callbacks.onEnvironmentMapChange ();
         });
@@ -139,7 +140,7 @@ class SettingsModelDisplaySection extends SettingsSection
 {
     constructor (parentDiv)
     {
-        super (parentDiv, 'Model Display');
+        super (parentDiv, localize('modelDisplay', 'Model Display'));
 
         this.environmentMapButton = null;
         this.environmentMapPopup = null;
@@ -158,7 +159,7 @@ class SettingsModelDisplaySection extends SettingsSection
         if (FeatureSet.EnvironmentMap) {
             this.environmentMapButton = AddDiv (this.contentDiv, 'ov_panel_button');
             AddSvgIconElement (this.environmentMapButton, 'arrow_left', 'ov_panel_button_left_icon');
-            AddDiv (this.environmentMapButton, 'ov_panel_button_text', 'Environment Map');
+            AddDiv (this.environmentMapButton, 'ov_panel_button_text', localize('environmentMap', 'Environment Map'));
             this.environmentMapButton.addEventListener ('click', () => {
                 this.environmentMapPopup = new EnvironmentMapPopup ();
                 this.environmentMapPopup.ShowPopup (this.environmentMapButton, settings, {
@@ -171,7 +172,7 @@ class SettingsModelDisplaySection extends SettingsSection
 
         let backgroundColorDiv = AddDiv (this.contentDiv, 'ov_sidebar_parameter');
         let backgroundColorInput = AddDiv (backgroundColorDiv, 'ov_color_picker');
-        AddDiv (backgroundColorDiv, null, 'Background Color');
+        AddDiv (backgroundColorDiv, null, localize('backgroundColor', 'Background Color'));
         let predefinedBackgroundColors = ['#ffffff', '#e3e3e3', '#c9c9c9', '#898989', '#5f5f5f', '#494949', '#383838', '#0f0f0f'];
         this.backgroundColorPicker = AddColorPicker (backgroundColorInput, settings.backgroundColor, predefinedBackgroundColors, (color) => {
             settings.backgroundColor = color;
@@ -180,7 +181,7 @@ class SettingsModelDisplaySection extends SettingsSection
 
         let edgeParameterDiv = AddDiv (this.contentDiv, 'ov_sidebar_parameter');
         this.edgeDisplayToggle = AddToggle (edgeParameterDiv, 'ov_sidebar_parameter_toggle');
-        AddDiv (edgeParameterDiv, 'ov_sidebar_parameter_text', 'Show Edges');
+        AddDiv (edgeParameterDiv, 'ov_sidebar_parameter_text', localize('showEdges', 'Show Edges'));
 
         this.edgeSettingsDiv = AddDiv (this.contentDiv, 'ov_sidebar_settings_padded');
         this.edgeDisplayToggle.OnChange (() => {
@@ -197,7 +198,7 @@ class SettingsModelDisplaySection extends SettingsSection
             settings.edgeColor = color;
             callbacks.onEdgeColorChange ();
         });
-        AddDiv (edgeColorRow, null, 'Edge Color');
+        AddDiv (edgeColorRow, null, localize('edgeColor', 'Edge Color'));
 
         let thresholdRow = AddDiv (this.edgeSettingsDiv, 'ov_sidebar_settings_row large');
         this.thresholdSlider = AddRangeSlider (thresholdRow, 0, 90);
@@ -261,7 +262,7 @@ class SettingsImportParametersSection extends SettingsSection
 {
     constructor (parentDiv)
     {
-        super (parentDiv, 'Import Settings');
+        super (parentDiv, localize('importSettings', 'Import Settings'));
         this.defaultColorPicker = null;
     }
 
@@ -269,7 +270,7 @@ class SettingsImportParametersSection extends SettingsSection
     {
         let defaultColorDiv = AddDiv (this.contentDiv, 'ov_sidebar_parameter');
         let defaultColorInput = AddDiv (defaultColorDiv, 'ov_color_picker');
-        AddDiv (defaultColorDiv, null, 'Default Color');
+        AddDiv (defaultColorDiv, null, localize('defaultColor', 'Default Color'));
         let predefinedDefaultColors = ['#ffffff', '#e3e3e3', '#cc3333', '#fac832', '#4caf50', '#3393bd', '#9b27b0', '#fda4b8'];
         this.defaultColorPicker = AddColorPicker (defaultColorInput, settings.defaultColor, predefinedDefaultColors, (color) => {
             settings.defaultColor = color;
@@ -303,7 +304,7 @@ class SettingsAppearanceSection extends SettingsSection
 {
     constructor (parentDiv)
     {
-        super (parentDiv, 'Appearance');
+        super (parentDiv, localize('appearance', 'Appearance'));
         this.darkModeToggle = null;
     }
 
@@ -316,7 +317,7 @@ class SettingsAppearanceSection extends SettingsSection
             settings.themeId = (this.darkModeToggle.GetStatus () ? Theme.Dark : Theme.Light);
             callbacks.onThemeChange ();
         });
-        AddDiv (darkModeParameterDiv, null, 'Dark Mode');
+        AddDiv (darkModeParameterDiv, null, localize('darkMode', 'Dark Mode'));
 
         let isDarkMode = (settings.themeId === Theme.Dark);
         this.darkModeToggle.SetStatus (isDarkMode);
@@ -343,7 +344,7 @@ export class SidebarSettingsPanel extends SidebarPanel
         this.importParametersSection = new SettingsImportParametersSection (this.sectionsDiv);
         this.appearanceSection = new SettingsAppearanceSection (this.sectionsDiv);
 
-        this.resetToDefaultsButton = AddDiv (this.contentDiv, 'ov_button ov_panel_button outline', 'Reset to Default');
+        this.resetToDefaultsButton = AddDiv (this.contentDiv, 'ov_button ov_panel_button outline', localize('resetToDefault', 'Reset to Default'));
         this.resetToDefaultsButton.addEventListener ('click', () => {
             this.ResetToDefaults ();
         });
@@ -351,7 +352,7 @@ export class SidebarSettingsPanel extends SidebarPanel
 
     GetName ()
     {
-        return 'Settings';
+        return localize('settings', 'Settings');
     }
 
     HasTitle ()
@@ -432,6 +433,7 @@ export class SidebarSettingsPanel extends SidebarPanel
         this.settings.edgeColor = defaultSettings.edgeColor;
         this.settings.edgeThreshold = defaultSettings.edgeThreshold;
         this.settings.themeId = defaultSettings.themeId;
+        this.settings.userLang = defaultSettings.userLang;
 
         this.modelDisplaySection.Update (this.settings);
         this.importParametersSection.Update (this.settings);
@@ -439,6 +441,7 @@ export class SidebarSettingsPanel extends SidebarPanel
 
         this.callbacks.onEnvironmentMapChange ();
         this.callbacks.onThemeChange ();
+        this.callbacks.onLocaleChange();
     }
 
     Resize ()
