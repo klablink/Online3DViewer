@@ -1,7 +1,7 @@
 {
 	"name": "online-3d-viewer",
 	"description": "Online 3D Viewer",
-	"version": "0.8.10",
+	"version": "0.8.6",
 	"repository": "github:kovacsv/Online3DViewer",
 	"license": "MIT",
 	"type": "module",
@@ -26,24 +26,25 @@
 	"devDependencies": {
 		"clean-css-cli": "^5.5.2",
 		"docdash": "^1.2.0",
-		"esbuild": "^0.14.23",
-		"eslint": "^8.10.0",
+		"esbuild": "^0.14.18",
+		"eslint": "^8.8.0",
 		"eslint-plugin-unused-imports": "^2.0.0",
 		"fantasticon": "^1.2.2",
 		"http-server": "^14.0.0",
 		"jsdoc": "^3.6.10",
-		"mocha": "^9.2.1",
+		"mocha": "^9.2.0",
 		"oslllo-svg-fixer": "^2.0.1",
 		"svgo": "^2.3.1"
 	},
 	"dependencies": {
 		"@simonwep/pickr": "1.8.2",
-		"draco3d": "1.5.2",
+		"draco3d": "1.5.0",
 		"fflate": "0.7.3",
-		"rhino3dm": "7.14.0",
-		"three": "0.139.2",
-		"web-ifc": "0.0.33",
-		"occt-import-js" : "0.0.6"
+		"lodash": "^4.17.21",
+		"occt-import-js": "0.0.4",
+		"rhino3dm": "7.11.1",
+		"three": "0.137.5",
+		"web-ifc": "0.0.33"
 	},
 	"eslintConfig": {
 		"env": {
@@ -60,7 +61,7 @@
 			"DracoDecoderModule": "readonly",
 			"rhino3dm": "readonly",
 			"WebIFC": "readonly",
-			"occtimportjs" : "readonly"
+			"occtimportjs": "readonly"
 		},
 		"parserOptions": {
 			"ecmaVersion": 12,
@@ -84,7 +85,7 @@
 			"comma-spacing": "error",
 			"prefer-arrow-callback": "error",
 			"quotes": [
-			"error",
+				"error",
 				"single"
 			],
 			"block-scoped-var": "error",

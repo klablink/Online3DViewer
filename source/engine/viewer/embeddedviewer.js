@@ -5,6 +5,7 @@ import { FileSource, TransformFileHostUrls } from '../io/fileutils.js';
 import { ParameterConverter } from '../parameters/parameterlist.js';
 import { ThreeModelLoader } from '../threejs/threemodelloader.js';
 import { Viewer } from './viewer.js';
+import {localize} from "../../i18n/locale";
 
 export class EmbeddedViewer
 {
@@ -72,14 +73,14 @@ export class EmbeddedViewer
             onLoadStart : () => {
                 this.canvas.style.display = 'none';
                 progressDiv = document.createElement ('div');
-                progressDiv.innerHTML = 'Loading model...';
+                progressDiv.innerHTML = localize('loadingModel...', 'Loading model...');
                 this.parentElement.appendChild (progressDiv);
             },
             onImportStart : () => {
-                progressDiv.innerHTML = 'Importing model...';
+                progressDiv.innerHTML = localize('importingModel...', 'Importing model...');
             },
             onVisualizationStart : () => {
-                progressDiv.innerHTML = 'Visualizing model...';
+                progressDiv.innerHTML = localize('visualizingModel...', 'Visualizing model...');
             },
             onModelFinished : (importResult, threeObject) => {
                 this.parentElement.removeChild (progressDiv);
@@ -105,13 +106,13 @@ export class EmbeddedViewer
                 this.viewer.Render ();
             },
             onLoadError : (importError) => {
-                let message = 'Unknown error';
+                let message = localize('unknownError', 'Unknown error');
                 if (importError.code === ImportErrorCode.NoImportableFile) {
-                    message = 'No importable file found';
+                    message = localize('noImportableFileFound', 'No importable file found');
                 } else if (importError.code === ImportErrorCode.FailedToLoadFile) {
-                    message = 'Failed to load file for import.';
+                    message = localize('failedToLoadFileForImport', 'Failed to load file for import.');
                 } else if (importError.code === ImportErrorCode.ImportFailed) {
-                    message = 'Failed to import model.';
+                    message = localize('failedToImportModel', 'Failed to import model.');
                 }
                 if (importError.message !== null) {
                     message += ' (' + importError.message + ')';

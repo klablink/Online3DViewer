@@ -8,6 +8,7 @@ import { Mesh } from '../model/mesh.js';
 import { Triangle } from '../model/triangle.js';
 import { ImporterBase } from './importerbase.js';
 import { NameFromLine, ParametersFromLine, ReadLines, UpdateMaterialTransparency } from './importerutils.js';
+import {localize} from "../../i18n/locale";
 
 class ObjMeshConverter
 {
@@ -374,7 +375,7 @@ export class ImporterObj extends ImporterBase
             let v1 = this.currentMeshConverter.AddVertex (vertices[i + 1], this.globalVertices);
             let v2 = this.currentMeshConverter.AddVertex (vertices[i + 2], this.globalVertices);
             if (v0 === null || v1 === null || v2 === null) {
-                this.SetError ('Invalid vertex index.');
+                this.SetError (localize('invalidVertexIndex', 'Invalid vertex index.'));
                 break;
             }
 
@@ -385,7 +386,7 @@ export class ImporterObj extends ImporterBase
                 let c1 = this.currentMeshConverter.AddVertexColor (colors[i + 1], this.globalVertexColors);
                 let c2 = this.currentMeshConverter.AddVertexColor (colors[i + 2], this.globalVertexColors);
                 if (c0 === null || c1 === null || c2 === null) {
-                    this.SetError ('Invalid vertex color index.');
+                    this.SetError (localize('invalidVertexColorIndex', 'Invalid vertex color index.'));
                     break;
                 }
                 triangle.SetVertexColors (c0, c1, c2);
@@ -396,7 +397,7 @@ export class ImporterObj extends ImporterBase
                 let n1 = this.currentMeshConverter.AddNormal (normals[i + 1], this.globalNormals);
                 let n2 = this.currentMeshConverter.AddNormal (normals[i + 2], this.globalNormals);
                 if (n0 === null || n1 === null || n2 === null) {
-                    this.SetError ('Invalid normal index.');
+                    this.SetError (localize('invalidNormalIndex', 'Invalid normal index.'));
                     break;
                 }
                 triangle.SetNormals (n0, n1, n2);
@@ -407,7 +408,7 @@ export class ImporterObj extends ImporterBase
                 let u1 = this.currentMeshConverter.AddUV (uvs[i + 1], this.globalUvs);
                 let u2 = this.currentMeshConverter.AddUV (uvs[i + 2], this.globalUvs);
                 if (u0 === null || u1 === null || u2 === null) {
-                    this.SetError ('Invalid uv index.');
+                    this.SetError (localize('invalidUvIndex', 'Invalid uv index.'));
                     break;
                 }
                 triangle.SetTextureUVs (u0, u1, u2);

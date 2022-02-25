@@ -1,6 +1,7 @@
 import { FileSource, GetFileExtension, TransformFileHostUrls } from '../engine/io/fileutils.js';
 import { ImportErrorCode, ImportSettings } from '../engine/import/importer.js';
 import { Viewer } from '../engine/viewer/viewer.js';
+import { MeasureTool } from '../engine/viewer/measuretool.js';
 import { AddDiv, AddDomElement, ShowDomElement, SetDomElementOuterHeight } from '../engine/viewer/domutils.js';
 import { CalculatePopupPositionToScreen, ShowListPopup } from './dialogs.js';
 import { HandleEvent } from './eventhandler.js';
@@ -11,8 +12,7 @@ import { Sidebar } from './sidebar.js';
 import { ThemeHandler } from './themehandler.js';
 import { ThreeModelLoaderUI } from './threemodelloaderui.js';
 import { Toolbar } from './toolbar.js';
-import { ShowExportDialog } from './exportdialog.js';
-import { ShowSnapshotDialog } from './snapshotdialog.js';
+import { ExportDialog } from './exportdialog.js';
 import { AddSmallWidthChangeEventListener, GetFilesFromDataTransfer, IsSmallWidth } from './utils.js';
 import { ShowOpenUrlDialog } from './openurldialog.js';
 import { ShowSharingDialog } from './sharingdialog.js';
@@ -20,8 +20,7 @@ import { HasDefaultMaterial, ReplaceDefaultMaterialColor } from '../engine/model
 import { Direction } from '../engine/geometry/geometry.js';
 import { CookieGetBoolVal, CookieSetBoolVal } from './cookiehandler.js';
 import { ShadingType } from '../engine/threejs/threeutils.js';
-import { MeasureTool } from './measuretool.js';
-import { CloseAllDialogs } from './dialog.js';
+import Locale, {defaultLocale, localize} from "../i18n/locale";
 
 export const WebsiteUIState =
 {
@@ -38,16 +37,18 @@ export class Website
         this.parameters = parameters;
         this.settings = new Settings ();
         this.viewer = new Viewer ();
-        this.measureTool = new MeasureTool (this.viewer, this.settings);
+        this.measureTool = new MeasureTool ();
         this.hashHandler = new HashHandler ();
         this.toolbar = new Toolbar (this.parameters.toolbarDiv);
         this.navigator = new Navigator (this.parameters.navigatorDiv, this.parameters.navigatorSplitterDiv);
-        this.sidebar = new Sidebar (this.parameters.sidebarDiv, this.parameters.sidebarSplitterDiv, this.settings);
+        this.sidebar = new Sidebar (this.parameters.sidebarDiv, this.parameters.sidebarSplitterDiv, this.settings, this.measureTool);
         this.modelLoaderUI = new ThreeModelLoaderUI ();
         this.themeHandler = new ThemeHandler ();
         this.highlightColor = new THREE.Color (0x8ec9f0);
         this.uiState = WebsiteUIState.Undefined;
         this.model = null;
+        this.dialog = null;
+        this.locale = null;
     }
 
     Load ()
@@ -55,8 +56,11 @@ export class Website
         this.settings.LoadFromCookies ();
         this.SwitchTheme (this.settings.themeId, false);
         HandleEvent ('theme_on_load', this.settings.themeId === Theme.Light ? 'light' : 'dark');
+        this.locale = new Locale(this.settings.userLang);
+        this.ChangeLocale((this.locale && this.locale._locale) ? this.locale._locale : defaultLocale);
 
         this.InitViewer ();
+        this.InitMeasureTool ();
         this.InitToolbar ();
         this.InitDragAndDrop ();
         this.InitSidebar ();
@@ -109,7 +113,6 @@ export class Website
         this.navigator.Resize (contentHeight);
         this.sidebar.Resize (contentHeight);
         this.viewer.Resize (contentWidth - safetyMargin, contentHeight);
-        this.measureTool.Resize ();
     }
 
     OnSmallWidthChanged ()
@@ -157,7 +160,7 @@ export class Website
 
     ClearModel ()
     {
-        CloseAllDialogs ();
+        this.HidePopups ();
 
         this.model = null;
         this.viewer.Clear ();
@@ -167,7 +170,8 @@ export class Website
         this.navigator.Clear ();
         this.sidebar.Clear ();
 
-        this.measureTool.SetActive (false);
+        this.measureTool.Clear ();
+        this.sidebar.UpdateMeasureTool ();
     }
 
     OnModelLoaded (importResult, threeObject)
@@ -189,6 +193,7 @@ export class Website
 
         if (this.measureTool.IsActive ()) {
             this.measureTool.Click (mouseCoordinates);
+            this.sidebar.UpdateMeasureTool ();
             return;
         }
 
@@ -202,9 +207,7 @@ export class Website
 
     OnModelMouseMoved (mouseCoordinates)
     {
-        if (this.measureTool.IsActive ()) {
-            this.measureTool.MouseMove (mouseCoordinates);
-        }
+
     }
 
     OnModelContextMenu (globalMouseCoordinates, mouseCoordinates)
@@ -213,7 +216,7 @@ export class Website
         let items = [];
         if (meshUserData === null) {
             items.push ({
-                name : 'Fit model to window',
+                name : localize('fitModelToWindow', 'Fit model to window'),
                 icon : 'fit',
                 onClick : () => {
                     this.FitModelToWindow (false);
@@ -221,7 +224,7 @@ export class Website
             });
             if (this.navigator.HasHiddenMesh ()) {
                 items.push ({
-                    name : 'Show all meshes',
+                    name : localize('showAllMeshes', 'Show all meshes'),
                     icon : 'visible',
                     onClick : () => {
                         this.navigator.ShowAllMeshes (true);
@@ -230,14 +233,14 @@ export class Website
             }
         } else {
             items.push ({
-                name : 'Hide mesh',
+                name : localize('hideMesh', 'Hide mesh'),
                 icon : 'hidden',
                 onClick : () => {
                     this.navigator.ToggleMeshVisibility (meshUserData.originalMeshId);
                 }
             });
             items.push ({
-                name : 'Fit mesh to window',
+                name : localize('fitMeshToWindow', 'Fit mesh to window'),
                 icon : 'fit',
                 onClick : () => {
                     this.navigator.FitMeshToWindow (meshUserData.originalMeshId);
@@ -246,8 +249,8 @@ export class Website
             if (this.navigator.MeshItemCount () > 1) {
                 let isMeshIsolated = this.navigator.IsMeshIsolated (meshUserData.originalMeshId);
                 items.push ({
-                    name : isMeshIsolated ? 'Remove isolation' : 'Isolate mesh',
-                    icon : isMeshIsolated ? 'deisolate' : 'isolate',
+                    name : isMeshIsolated ? localize('removeIsolation', 'Remove isolation') : localize('isolateMesh', 'Isolate mesh'),
+                    icon : isMeshIsolated ? localize('deisolate','deisolate') : localize('isolate','isolate'),
                     onClick : () => {
                         if (isMeshIsolated) {
                             this.navigator.ShowAllMeshes (true);
@@ -258,7 +261,7 @@ export class Website
                 });
             }
         }
-        ShowListPopup (items, {
+        this.dialog = ShowListPopup (items, {
             calculatePosition : (contentDiv) => {
                 return CalculatePopupPositionToScreen (globalMouseCoordinates, contentDiv);
             },
@@ -288,6 +291,14 @@ export class Website
         } else {
             this.ClearModel ();
             this.SetUIState (WebsiteUIState.Intro);
+        }
+    }
+
+    HidePopups ()
+    {
+        if (this.dialog !== null) {
+            this.dialog.Hide ();
+            this.dialog = null;
         }
     }
 
@@ -426,6 +437,12 @@ export class Website
         }
     }
 
+    UpdateGridDisplay ()
+    {
+        this.settings.SaveToCookies ();
+        this.viewer.SetGridSettings (this.settings.showGrid);
+    }
+
     UpdateEdgeDisplay ()
     {
         this.settings.SaveToCookies ();
@@ -461,13 +478,26 @@ export class Website
         }
     }
 
+    ChangeLocale (newUserLang)
+    {
+        this.locale.setLocale(newUserLang);
+        this.settings.userLang = this.locale.getLocale();
+        this.settings.SaveToCookies ();
+    }
+
     InitViewer ()
     {
         let canvas = AddDomElement (this.parameters.viewerDiv, 'canvas');
         this.viewer.Init (canvas);
+        this.viewer.SetGridSettings (this.settings.showGrid);
         this.viewer.SetEdgeSettings (this.settings.showEdges, this.settings.edgeColor, this.settings.edgeThreshold);
         this.viewer.SetBackgroundColor (this.settings.backgroundColor);
         this.UpdateEnvironmentMap ();
+    }
+
+    InitMeasureTool ()
+    {
+        this.measureTool.Init (this.viewer, this.highlightColor);
     }
 
     InitToolbar ()
@@ -476,17 +506,6 @@ export class Website
         {
             let button = toolbar.AddImageButton (imageName, imageTitle, () => {
                 onClick ();
-            });
-            for (let className of classNames) {
-                button.AddClass (className);
-            }
-            return button;
-        }
-
-        function AddPushButton (toolbar, imageName, imageTitle, classNames, onClick)
-        {
-            let button = toolbar.AddImagePushButton (imageName, imageTitle, false, (isSelected) => {
-                onClick (isSelected);
             });
             for (let className of classNames) {
                 button.AddClass (className);
@@ -527,31 +546,31 @@ export class Website
 
         let importer = this.modelLoaderUI.GetImporter ();
 
-        AddButton (this.toolbar, 'open', 'Open model from your device', [], () => {
+        AddButton (this.toolbar, 'open', localize('openModelFromYourDevice', 'Open model from your device'), [], () => {
             this.OpenFileBrowserDialog ();
         });
-        AddButton (this.toolbar, 'open_url', 'Open model from a url', [], () => {
-            ShowOpenUrlDialog ((urls) => {
+        AddButton (this.toolbar, 'open_url', localize('openModelFromUrl', 'Open model from a url'), [], () => {
+            this.dialog = ShowOpenUrlDialog ((urls) => {
                 if (urls.length > 0) {
                     this.hashHandler.SetModelFilesToHash (urls);
                 }
             });
         });
         AddSeparator (this.toolbar, ['only_on_model']);
-        AddButton (this.toolbar, 'fit', 'Fit model to window', ['only_on_model'], () => {
+        AddButton (this.toolbar, 'fit', localize("fitModelToWindow", "Fit model to window"), ['only_on_model'], () => {
             this.FitModelToWindow (false);
         });
-        AddButton (this.toolbar, 'up_y', 'Set Y axis as up vector', ['only_on_model'], () => {
+        AddButton (this.toolbar, 'up_y', localize('setYaxisAsUpVector', 'Set Y axis as up vector'), ['only_on_model'], () => {
             this.viewer.SetUpVector (Direction.Y, true);
         });
-        AddButton (this.toolbar, 'up_z', 'Set Z axis as up vector', ['only_on_model'], () => {
+        AddButton (this.toolbar, 'up_z', localize('setZaxisAsUpVector','Set Z axis as up vector'), ['only_on_model'], () => {
             this.viewer.SetUpVector (Direction.Z, true);
         });
-        AddButton (this.toolbar, 'flip', 'Flip up vector', ['only_on_model'], () => {
+        AddButton (this.toolbar, 'flip', localize('flipUpVector', 'Flip up vector'), ['only_on_model'], () => {
             this.viewer.FlipUpVector ();
         });
         AddSeparator (this.toolbar, ['only_on_model']);
-        AddRadioButton (this.toolbar, ['fix_up_on', 'fix_up_off'], ['Fixed up vector', 'Free orbit'], 0, ['only_on_model'], (buttonIndex) => {
+        AddRadioButton (this.toolbar, ['fix_up_on', 'fix_up_off'], [localize('fixedUpVector', 'Fixed up vector'), localize('freeOrbit', 'Free orbit')], 0, ['only_on_model'], (buttonIndex) => {
             if (buttonIndex === 0) {
                 this.viewer.SetFixUpVector (true);
             } else if (buttonIndex === 1) {
@@ -559,25 +578,19 @@ export class Website
             }
         });
         AddSeparator (this.toolbar, ['only_full_width', 'only_on_model']);
-        let measureToolButton = AddPushButton (this.toolbar, 'measure', 'Measure', ['only_full_width', 'only_on_model'], (isSelected) => {
-            HandleEvent ('measure_tool_activated', isSelected ? 'on' : 'off');
-            this.navigator.SetSelection (null);
-            this.measureTool.SetActive (isSelected);
-        });
-        this.measureTool.SetButton (measureToolButton);
-        AddSeparator (this.toolbar, ['only_full_width', 'only_on_model']);
-        AddButton (this.toolbar, 'snapshot', 'Create snapshot', ['only_full_width', 'only_on_model'], () => {
-            ShowSnapshotDialog (this.viewer);
-        });
-        AddButton (this.toolbar, 'export', 'Export model', ['only_full_width', 'only_on_model'], () => {
-            ShowExportDialog (this.model, this.viewer, {
+        AddButton (this.toolbar, 'export', localize('exportModel', 'Export model'), ['only_full_width', 'only_on_model'], () => {
+            let exportDialog = new ExportDialog ({
                 isMeshVisible : (meshInstanceId) => {
                     return this.navigator.IsMeshVisible (meshInstanceId);
+                },
+                onDialog : (dialog) => {
+                    this.dialog = dialog;
                 }
             });
+            exportDialog.Show (this.model, this.viewer);
         });
-        AddButton (this.toolbar, 'share', 'Share model', ['only_full_width', 'only_on_model'], () => {
-            ShowSharingDialog (importer.GetFileList (), this.settings, this.viewer.GetCamera ());
+        AddButton (this.toolbar, 'share', localize('shareModel', 'Share model'), ['only_full_width', 'only_on_model'], () => {
+            this.dialog = ShowSharingDialog (importer.GetFileList (), this.settings, this.viewer.GetCamera ());
         });
 
         this.parameters.fileInput.addEventListener ('change', (ev) => {
@@ -622,9 +635,6 @@ export class Website
             onBackgroundColorChange : () => {
                 this.settings.SaveToCookies ();
                 this.viewer.SetBackgroundColor (this.settings.backgroundColor);
-                if (this.measureTool.IsActive ()) {
-                    this.measureTool.UpdatePanel ();
-                }
             },
             onDefaultColorChange : () => {
                 this.settings.SaveToCookies ();
@@ -635,6 +645,9 @@ export class Website
                 }
                 this.viewer.Render ();
             },
+            onGridDisplayChange : () => {
+                this.UpdateGridDisplay ();
+            },
             onEdgeDisplayChange : () => {
                 HandleEvent ('edge_display_changed', this.settings.showEdges ? 'on' : 'off');
                 this.UpdateEdgeDisplay ();
@@ -642,6 +655,18 @@ export class Website
             onThemeChange : () => {
                 HandleEvent ('theme_changed', this.settings.themeId === Theme.Light ? 'light' : 'dark');
                 this.SwitchTheme (this.settings.themeId, true);
+            },
+            onLocaleChange : (newUserLang) => {
+                this.ChangeLocale (newUserLang);
+            },
+            onMeasureToolActivedChange : (isActivated) => {
+                if (isActivated) {
+                    this.navigator.SetSelection (null);
+                    this.measureTool.SetActive (true);
+                } else {
+                    this.measureTool.SetActive (false);
+                }
+                this.sidebar.UpdateMeasureTool ();
             },
             onResize : () => {
                 this.Resize ();
@@ -766,10 +791,11 @@ export class Website
             return;
         }
 
-        let text = 'This website uses cookies to offer you better user experience. See the details at the <a target="_blank" href="info/cookies.html">Cookies Policy</a> page.';
+        let textdft = 'This website uses cookies to offer you better user experience. See the details at the <a target="_blank" href="info/cookies.html">Cookies Policy</a> page.';
+        let text = localize('cookiePolicyAlert', textdft);
         let popupDiv = AddDiv (document.body, 'ov_bottom_floating_panel');
         AddDiv (popupDiv, 'ov_floating_panel_text', text);
-        let acceptButton = AddDiv (popupDiv, 'ov_button ov_floating_panel_button', 'Accept');
+        let acceptButton = AddDiv (popupDiv, 'ov_button ov_floating_panel_button', localize('accept','Accept'));
         acceptButton.addEventListener ('click', () => {
             CookieSetBoolVal ('ov_cookie_consent', true);
             popupDiv.remove ();

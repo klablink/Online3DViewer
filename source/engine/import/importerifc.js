@@ -10,6 +10,7 @@ import { Property, PropertyGroup, PropertyType } from '../model/property.js';
 import { Triangle } from '../model/triangle.js';
 import { ImporterBase } from './importerbase.js';
 import { UpdateMaterialTransparency } from './importerutils.js';
+import {localize} from "../../i18n/locale";
 
 export class ImporterIfc extends ImporterBase
 {
@@ -164,11 +165,11 @@ export class ImporterIfc extends ImporterBase
                             break;
                         case 'IFCBOOLEAN':
                         case 'IFCLOGICAL':
-                            strValue = 'Unknown';
+                            strValue = localize('unknown', 'Unknown');
                             if (property.NominalValue.value === 'T') {
-                                strValue = 'True';
+                                strValue = localize('true','True');
                             } else if (property.NominalValue.value === 'F') {
-                                strValue = 'False';
+                                strValue = localize('false','False');
                             }
                             elemProperty = new Property (PropertyType.Text, propertyName, strValue);
                             break;
@@ -210,7 +211,7 @@ export class ImporterIfc extends ImporterBase
     {
         const color = ColorFromFloatComponents (ifcColor.x, ifcColor.y, ifcColor.z);
 
-        const materialName = 'Color ' +
+        const materialName = localize('color', 'Color') +
             IntegerToHexString (color.r) +
             IntegerToHexString (color.g) +
             IntegerToHexString (color.b) +

@@ -1,5 +1,6 @@
 import { Color } from '../engine/model/color.js';
 import { CookieGetBoolVal, CookieGetColorVal, CookieGetIntVal, CookieGetStringVal, CookieSetBoolVal, CookieSetColorVal, CookieSetIntVal, CookieSetStringVal } from './cookiehandler.js';
+import {defaultLocale} from "../i18n/locale";
 
 export const Theme =
 {
@@ -19,6 +20,7 @@ export class Settings
         this.edgeColor = new Color (0, 0, 0);
         this.edgeThreshold = 1;
         this.themeId = Theme.Light;
+        this.userLang = defaultLocale;
     }
 
     LoadFromCookies ()
@@ -31,6 +33,7 @@ export class Settings
         this.edgeColor = CookieGetColorVal ('ov_edge_color', new Color (0, 0, 0));
         this.edgeThreshold = CookieGetIntVal ('ov_edge_threshold', 1);
         this.themeId = CookieGetIntVal ('ov_theme_id', Theme.Light);
+        this.userLang = CookieGetStringVal ('ov_locale_id', defaultLocale);
     }
 
     SaveToCookies ()
@@ -43,5 +46,6 @@ export class Settings
         CookieSetColorVal ('ov_edge_color', this.edgeColor);
         CookieSetIntVal ('ov_edge_threshold', this.edgeThreshold);
         CookieSetIntVal ('ov_theme_id', this.themeId);
+        CookieSetStringVal ('ov_locale_id', this.userLang);
     }
 }

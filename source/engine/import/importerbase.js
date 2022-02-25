@@ -2,6 +2,7 @@ import { Direction } from '../geometry/geometry.js';
 import { Model } from '../model/model.js';
 import { FinalizeModel } from '../model/modelfinalization.js';
 import { IsModelEmpty } from '../model/modelutils.js';
+import {localize} from "../../i18n/locale";
 
 export class ImporterBase
 {
@@ -51,7 +52,7 @@ export class ImporterBase
         }
 
         if (IsModelEmpty (this.model)) {
-            this.SetError ('The model doesn\'t contain any meshes.');
+            this.SetError (localize("modelWithNoMeshes","The model doesn't contain any meshes."));
             callbacks.onError ();
             callbacks.onComplete ();
             return;

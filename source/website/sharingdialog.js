@@ -6,6 +6,7 @@ import { ShowMessageDialog } from './dialogs.js';
 import { ButtonDialog } from './dialog.js';
 import { CopyToClipboard } from './utils.js';
 import { HandleEvent } from './eventhandler.js';
+import {localize} from "../i18n/locale";
 
 export function ShowSharingDialog (fileList, settings, camera)
 {
@@ -19,8 +20,8 @@ export function ShowSharingDialog (fileList, settings, camera)
 
     function AddCopyableTextInput (parentDiv, getText)
     {
-        let copyText = 'Copy';
-        let copiedText = 'Copied';
+        let copyText = localize('copy', 'Copy');
+        let copiedText = localize('copied', 'Copied');
         let container = AddDiv (parentDiv, 'ov_dialog_copyable_input');
         let input = AddDomElement (container, 'input', null);
         input.setAttribute ('type', 'text');
@@ -47,7 +48,7 @@ export function ShowSharingDialog (fileList, settings, camera)
         }
 
         let section = AddDiv (parentDiv, 'ov_dialog_section');
-        AddDiv (section, 'ov_dialog_inner_title', 'Sharing Link');
+        AddDiv (section, 'ov_dialog_inner_title', localize('sharingLink', 'Sharing Link'));
         let sharingLinkInput = AddCopyableTextInput (section, () => {
             HandleEvent ('model_shared', 'sharing_link');
             return GetSharingLink (modelFiles);
@@ -91,13 +92,13 @@ export function ShowSharingDialog (fileList, settings, camera)
         let useCurrentSettings = true;
         let section = AddDiv (parentDiv, 'ov_dialog_section');
         section.style.marginTop = '20px';
-        AddDiv (section, 'ov_dialog_inner_title', 'Embedding Code');
+        AddDiv (section, 'ov_dialog_inner_title', localize('embeddingCode','Embedding Code'));
         let optionsSection = AddDiv (section, 'ov_dialog_section');
         let embeddingCodeInput = AddCopyableTextInput (section, () => {
             HandleEvent ('model_shared', 'embedding_code');
             return GetEmbeddingCode (modelFiles, useCurrentSettings, settings, camera);
         });
-        AddCheckboxLine (optionsSection, 'Use customized settings', 'embed_current_settings', (checked) => {
+        AddCheckboxLine (optionsSection, localize('useCustomizedSettings', 'Use customized settings'), 'embed_current_settings', (checked) => {
             useCurrentSettings = checked;
             embeddingCodeInput.value = GetEmbeddingCode (modelFiles, useCurrentSettings, settings, camera);
         });
@@ -107,8 +108,8 @@ export function ShowSharingDialog (fileList, settings, camera)
 
     if (!fileList.IsOnlyUrlSource ()) {
         return ShowMessageDialog (
-            'Sharing Failed',
-            'Sharing works only if you load files by url. Please upload your model files to a web server, open them by url, and try embedding again.',
+            localize('sharingFailed', 'Sharing Failed'),
+            localize('sharingWorksOnlyByUrl', 'Sharing works only if you load files by url. Please upload your model files to a web server, open them by url, and try embedding again.'),
             null
         );
     }
@@ -123,9 +124,9 @@ export function ShowSharingDialog (fileList, settings, camera)
     }
 
     let dialog = new ButtonDialog ();
-    let contentDiv = dialog.Init ('Share', [
+    let contentDiv = dialog.Init (localize('share', 'Share'), [
         {
-            name : 'Close',
+            name : localize('close', 'Close'),
             onClick () {
                 dialog.Close ();
             }

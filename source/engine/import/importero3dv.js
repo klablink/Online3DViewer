@@ -11,6 +11,7 @@ import { PhysicalMaterial } from '../model/material.js';
 import { Node, NodeType } from '../model/node.js';
 import { Property, PropertyGroup, PropertyType } from '../model/property.js';
 import { ImporterBase } from './importerbase.js';
+import {localize} from "../../i18n/locale";
 
 export class ImporterO3dv extends ImporterBase
 {
@@ -166,7 +167,7 @@ export class ImporterO3dv extends ImporterBase
     ImportProperties (element, nodeContent)
     {
         if (nodeContent.properties !== undefined) {
-            const propertyGroup = new PropertyGroup ('Properties');
+            const propertyGroup = new PropertyGroup (localize('properties', 'Properties'));
             element.AddPropertyGroup (propertyGroup);
             for (const nodeProperty of nodeContent.properties) {
                 const property = new Property (PropertyType.Text, nodeProperty.name, nodeProperty.value);

@@ -59,6 +59,9 @@ export class Sidebar
             },
             onThemeChange : () => {
                 this.callbacks.onThemeChange ();
+            },
+            onLocaleChange: () => {
+                this.callbacks.onLocaleChange ();
             }
         });
 
