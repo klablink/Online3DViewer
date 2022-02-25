@@ -18,9 +18,9 @@ import { ShowOpenUrlDialog } from './openurldialog.js';
 import { ShowSharingDialog } from './sharingdialog.js';
 import { HasDefaultMaterial, ReplaceDefaultMaterialColor } from '../engine/model/modelutils.js';
 import { Direction } from '../engine/geometry/geometry.js';
-import { CookieGetBoolVal, CookieSetBoolVal } from './cookiehandler.js';
+import {CookieGetBoolVal, CookieSetBoolVal} from './cookiehandler.js';
 import { ShadingType } from '../engine/threejs/threeutils.js';
-import Locale, {defaultLocale, localize} from "../i18n/locale";
+import {defaultLocale, availableLocales, isNotEmpty, localize} from "../i18n/locale";
 
 export const WebsiteUIState =
 {
@@ -48,7 +48,6 @@ export class Website
         this.uiState = WebsiteUIState.Undefined;
         this.model = null;
         this.dialog = null;
-        this.locale = null;
     }
 
     Load ()
@@ -56,8 +55,8 @@ export class Website
         this.settings.LoadFromCookies ();
         this.SwitchTheme (this.settings.themeId, false);
         HandleEvent ('theme_on_load', this.settings.themeId === Theme.Light ? 'light' : 'dark');
-        this.locale = new Locale(this.settings.userLang);
-        this.ChangeLocale((this.locale && this.locale._locale) ? this.locale._locale : defaultLocale);
+
+        this.ChangeLocale(isNotEmpty(this.settings.userLang) ? this.settings.userLang : defaultLocale);
 
         this.InitViewer ();
         this.InitMeasureTool ();
@@ -480,8 +479,10 @@ export class Website
 
     ChangeLocale (newUserLang)
     {
-        this.locale.setLocale(newUserLang);
-        this.settings.userLang = this.locale.getLocale();
+        if (!isNotEmpty(newUserLang) || !availableLocales.includes(newUserLang))
+            newUserLang = defaultLocale;
+
+        this.settings.userLang = newUserLang;
         this.settings.SaveToCookies ();
     }
 
