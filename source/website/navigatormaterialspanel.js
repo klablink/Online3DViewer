@@ -20,8 +20,8 @@ class NavigatorMeshesPopupButton extends NavigatorPopupButton
             return;
         }
 
-        let textdft = 'Meshes (' + this.meshInfoArray.length + ')';
-        this.buttonText.innerHTML = localize('meshesInfoLength', textdft, {meshInfoArrayLength: this.meshInfoArray.length});
+        let meshesText = 'Meshes (' + this.meshInfoArray.length + ')';
+        this.buttonText.innerHTML = localize('meshesInfoLength', meshesText, {meshInfoArrayLength: this.meshInfoArray.length});
     }
 
     OnButtonClick ()

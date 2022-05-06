@@ -2,11 +2,11 @@ import { RunTaskAsync } from '../engine/core/taskrunner.js';
 import { SubCoord3D } from '../engine/geometry/coord3d.js';
 import { GetBoundingBox, IsSolid } from '../engine/model/modelutils.js';
 import { CalculateVolume, CalculateSurfaceArea } from '../engine/model/quantities.js';
-import { Property, PropertyType } from '../engine/model/property.js';
+import { Property, PropertyToString, PropertyType } from '../engine/model/property.js';
 import { AddDiv, AddDomElement, ClearDomElement } from '../engine/viewer/domutils.js';
 import { SidebarPanel } from './sidebarpanel.js';
 import { CreateInlineColorCircle } from './utils.js';
-import { GetFileName } from '../engine/io/fileutils.js';
+import { GetFileName, IsUrl } from '../engine/io/fileutils.js';
 import { MaterialType } from '../engine/model/material.js';
 import { ColorToHexString } from '../engine/model/color.js';
 import {localize} from "../i18n/locale";
@@ -158,29 +158,26 @@ export class SidebarDetailsPanel extends SidebarPanel
     DisplayPropertyValue (property, targetDiv)
     {
         ClearDomElement (targetDiv);
-        let valueText = null;
+        let valueHtml = null;
+        let valueTitle = null;
         if (property.type === PropertyType.Text) {
-            valueText = property.value;
-        } else if (property.type === PropertyType.Integer) {
-            valueText = property.value.toLocaleString ();
-        } else if (property.type === PropertyType.Number) {
-            valueText = property.value.toLocaleString (undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
-        } else if (property.type === PropertyType.Boolean) {
-            valueText = property.value ? localize('true', 'True') : localize('false', 'False');
-        } else if (property.type === PropertyType.Percent) {
-            valueText = parseInt (property.value * 100, 10).toString () + '%';
+            if (IsUrl (property.value)) {
+                valueHtml = '<a target="_blank" href="' + property.value + '">' + property.value + '</a>';
+                valueTitle = property.value;
+            } else {
+                valueHtml = PropertyToString (property);
+            }
         } else if (property.type === PropertyType.Color) {
             let hexString = '#' + ColorToHexString (property.value);
             let colorCircle = CreateInlineColorCircle (property.value);
             targetDiv.appendChild (colorCircle);
             AddDomElement (targetDiv, 'span', null, hexString);
+        } else {
+            valueHtml = PropertyToString (property);
         }
-        if (valueText !== null) {
-            targetDiv.innerHTML = valueText;
-            targetDiv.setAttribute ('title', valueText);
+        if (valueHtml !== null) {
+            targetDiv.innerHTML = valueHtml;
+            targetDiv.setAttribute ('title', valueTitle !== null ? valueTitle : valueHtml);
         }
     }
 }

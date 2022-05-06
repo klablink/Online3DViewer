@@ -2,6 +2,7 @@ import { Direction } from '../geometry/geometry.js';
 import { Matrix } from '../geometry/matrix.js';
 import { Transformation } from '../geometry/transformation.js';
 import { LoadExternalLibrary } from '../io/externallibs.js';
+import { GetFileName } from '../io/fileutils.js';
 import { PhongMaterial, PhysicalMaterial } from '../model/material.js';
 import { TransformMesh } from '../model/meshutils.js';
 import { IsModelEmpty } from '../model/modelutils.js';
@@ -9,14 +10,15 @@ import { Property, PropertyGroup, PropertyType } from '../model/property.js';
 import { ConvertThreeGeometryToMesh } from '../threejs/threeutils.js';
 import { ImporterBase } from './importerbase.js';
 import { UpdateMaterialTransparency } from './importerutils.js';
-import {localize} from "../../i18n/locale";
+import { TextureMap } from '../model/material.js';
+import {localize} from '../../i18n/locale';
 
 export class Importer3dm extends ImporterBase
 {
     constructor ()
     {
         super ();
-		this.rhino = null;
+        this.rhino = null;
     }
 
     CanImportExtension (extension)
@@ -51,6 +53,7 @@ export class Importer3dm extends ImporterBase
 					onFinish ();
 				});
             }).catch (() => {
+                this.SetError ('Failed to load rhino3dm.');
                 onFinish ();
             });
 		} else {
@@ -68,7 +71,7 @@ export class Importer3dm extends ImporterBase
 		}
 		this.ImportRhinoDocument (rhinoDoc);
         if (IsModelEmpty (this.model)) {
-			this.SetError (localize("modelNotContain3DMeshesSaveInRhino","The model doesn't contain any 3D meshes. Try to save the model while you are in shaded view in Rhino."));
+			this.SetError (localize('modelNotContain3DMeshesSaveInRhino','The model doesn\'t contain any 3D meshes. Try to save the model while you are in shaded view in Rhino.'));
         }
 	}
 
@@ -242,7 +245,7 @@ export class Importer3dm extends ImporterBase
 			return null;
 		}
 
-		function FindMatchingMaterial (model, rhinoMaterial)
+        function ConvertRhinoMaterial (rhinoMaterial, callbacks)
 		{
 			function SetColor (color, rhinoColor)
 			{
@@ -260,10 +263,6 @@ export class Importer3dm extends ImporterBase
 			}
 
 			let material = null;
-			if (rhinoMaterial === null) {
-				material = new PhongMaterial ();
-				material.color.Set (255, 255, 255);
-			} else {
 				let physicallyBased = rhinoMaterial.physicallyBased ();
 				if (physicallyBased.supported) {
 					material = new PhysicalMaterial ();
@@ -274,18 +273,36 @@ export class Importer3dm extends ImporterBase
 					SetColor (material.ambient, rhinoMaterial.ambientColor);
 					SetColor (material.specular, rhinoMaterial.specularColor);
 				}
+
 				material.name = rhinoMaterial.name;
+
 				SetColor (material.color, rhinoMaterial.diffuseColor);
 				material.opacity = 1.0 - rhinoMaterial.transparency;
 				UpdateMaterialTransparency (material);
-				// material.shininess = rhinoMaterial.shine / 255.0;
+
 				if (IsBlack (material.color) && !IsWhite (rhinoMaterial.reflectionColor)) {
 					SetColor (material.color, rhinoMaterial.reflectionColor);
 				}
 				if (IsBlack (material.color) && !IsWhite (rhinoMaterial.transparentColor)) {
 					SetColor (material.color, rhinoMaterial.transparentColor);
 				}
+
+            let rhinoTexture = rhinoMaterial.getBitmapTexture ();
+            if (rhinoTexture) {
+                let texture = new TextureMap ();
+                let textureName = GetFileName (rhinoTexture.fileName);
+                let textureBuffer = callbacks.getFileBuffer (textureName);
+                texture.name = textureName;
+                texture.buffer = textureBuffer;
+                material.diffuseMap = texture;
 			}
+
+            return material;
+        }
+
+        function FindMatchingMaterial (model, rhinoMaterial, callbacks)
+        {
+            let material = ConvertRhinoMaterial (rhinoMaterial, callbacks);
 			for (let i = 0; i < model.MaterialCount (); i++) {
 				let current = model.GetMaterial (i);
 				if (current.IsEqual (material)) {
@@ -296,6 +313,9 @@ export class Importer3dm extends ImporterBase
 		}
 
 		let rhinoMaterial = GetRhinoMaterial (this.rhino, rhinoObject, rhinoInstanceReferences);
-		return FindMatchingMaterial (this.model, rhinoMaterial);
+        if (rhinoMaterial === null) {
+            return null;
+        }
+        return FindMatchingMaterial (this.model, rhinoMaterial, this.callbacks);
 	}
 }

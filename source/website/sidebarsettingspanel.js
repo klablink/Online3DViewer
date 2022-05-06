@@ -391,7 +391,10 @@ export class SidebarSettingsPanel extends SidebarPanel
             },
             onEdgeThresholdChange : () => {
                 callbacks.onEdgeDisplayChange ();
-            }
+            },
+            onLocaleChange: (newUserLang) => {
+                callbacks.ChangeLocale(newUserLang);
+            },
         });
         this.importParametersSection.Init (this.settings, {
             onDefaultColorChange : () => {

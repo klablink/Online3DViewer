@@ -29,8 +29,8 @@ class NavigatorMaterialsPopupButton extends NavigatorPopupButton
             return;
         }
 
-        let textdft = 'Materials (' + this.materialInfoArray.length + ')';
-        this.buttonText.innerHTML = localize('materialsInfoLength', textdft, {materialInfoArrayLength: this.materialInfoArray.length});
+        let materialsText = 'Materials (' + this.materialInfoArray.length + ')';
+        this.buttonText.innerHTML = localize('materialsInfoLength', materialsText, {materialInfoArrayLength: this.materialInfoArray.length});
     }
 
     OnButtonClick ()

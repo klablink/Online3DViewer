@@ -1,7 +1,7 @@
 import { ReadLines } from '../engine/import/importerutils.js';
 import { AddDiv, CreateDomElement } from '../engine/viewer/domutils.js';
-import { ButtonDialog } from './modal.js';
-import {localize} from "../i18n/locale";
+import { ButtonDialog } from './dialog.js';
+import {localize} from '../i18n/locale';
 
 export function ShowOpenUrlDialog (onOk)
 {
@@ -12,7 +12,7 @@ export function ShowOpenUrlDialog (onOk)
             name : localize('cancel', 'Cancel'),
             subClass : 'outline',
             onClick () {
-                dialog.Hide ();
+                dialog.Close ();
             }
         },
         {
@@ -22,7 +22,7 @@ export function ShowOpenUrlDialog (onOk)
                 ReadLines (urlsTextArea.value, (line) => {
                     urls.push (line);
                 });
-                dialog.Hide ();
+                dialog.Close ();
                 onOk (urls);
             }
         }
@@ -31,7 +31,7 @@ export function ShowOpenUrlDialog (onOk)
     let text = localize('hereLoadModelsUrls', textdft);
     AddDiv (contentDiv, 'ov_dialog_section', text);
     contentDiv.appendChild (urlsTextArea);
-    dialog.Show ();
+    dialog.Open ();
     urlsTextArea.focus ();
     return dialog;
 }

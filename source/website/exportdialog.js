@@ -5,30 +5,37 @@ import { FileFormat } from '../engine/io/fileutils.js';
 import { LoadExternalLibrary } from '../engine/io/externallibs.js';
 import { Exporter } from '../engine/export/exporter.js';
 import { ExporterModel, ExporterSettings } from '../engine/export/exportermodel.js';
-import { AddDiv, AddSelect, ClearDomElement } from '../engine/viewer/domutils.js';
+import { AddDiv, ClearDomElement } from '../engine/viewer/domutils.js';
+import { AddSelect } from '../website/utils.js';
+import { ButtonDialog, ProgressDialog } from './dialog.js';
 import { ShowMessageDialog } from './dialogs.js';
-import { ButtonDialog, ProgressDialog } from './modal.js';
-import { DownloadArrayBufferAsFile, DownloadUrlAsFile } from './utils.js';
+import { DownloadArrayBufferAsFile } from './utils.js';
 import { CookieGetStringVal, CookieSetStringVal } from './cookiehandler.js';
 import { HandleEvent } from './eventhandler.js';
-import {localize} from "../i18n/locale";
+import {localize} from '../i18n/locale';
 
-export const ExportType =
+function AddSelectWithCookieSave (parentElement, cookieKey, options, defaultSelectedIndex, onChange)
 {
-    Model : 0,
-    Image : 1
-};
+    let previousOption = CookieGetStringVal (cookieKey, null);
+    let previousOptionIndex = options.indexOf (previousOption);
+    let selectedIndex = (previousOptionIndex !== -1 ? previousOptionIndex : defaultSelectedIndex);
+    return AddSelect (parentElement, options, selectedIndex, (newSelectedIndex) => {
+        CookieSetStringVal (cookieKey, options[newSelectedIndex]);
+        if (onChange) {
+            onChange (newSelectedIndex);
+        }
+    });
+}
 
-export class ExporterUI
+class ModelExporterUI
 {
-    constructor (name)
+    constructor (name, format, extension)
     {
         this.name = name;
-    }
-
-    GetType ()
-    {
-        return null;
+        this.format = format;
+        this.extension = extension;
+        this.visibleOnlySelect = null;
+        this.rotationSelect = null;
     }
 
     GetName ()
@@ -38,38 +45,16 @@ export class ExporterUI
 
     GenerateParametersUI (parametersDiv)
     {
-
-    }
-
-    AddSelectItem (parametersDiv, name, values, defaultIndex)
+        function AddSelectItem (parametersDiv, name, cookieKey, values, defaultIndex)
     {
         let parameterRow = AddDiv (parametersDiv, 'ov_dialog_row');
         AddDiv (parameterRow, 'ov_dialog_row_name', name);
         let parameterValueDiv = AddDiv (parameterRow, 'ov_dialog_row_value');
-        return AddSelect (parameterValueDiv, values, defaultIndex);
-    }
+            return AddSelectWithCookieSave (parameterValueDiv, cookieKey, values, defaultIndex);
 }
 
-export class ModelExporterUI extends ExporterUI
-{
-    constructor (name, format, extension)
-    {
-        super (name);
-        this.format = format;
-        this.extension = extension;
-        this.visibleOnlySelect = null;
-        this.rotationSelect = null;
-    }
-
-    GetType ()
-    {
-        return ExportType.Model;
-    }
-
-    GenerateParametersUI (parametersDiv)
-    {
-        this.visibleOnlySelect = this.AddSelectItem (parametersDiv, localize('scope', 'Scope'), [localize('entireModel', 'Entire Model'), localize('visibleOnly', 'Visible Only')], 1);
-        this.rotationSelect = this.AddSelectItem (parametersDiv, localize('rotation', 'Rotation'), [localize('noRotation', 'No Rotation'), localize('-90Degrees', '-90 Degrees'), localize('+90Degrees', '90 Degrees')], 0);
+        this.visibleOnlySelect = AddSelectItem (parametersDiv, 'Scope', 'ov_last_scope', ['Entire Model', 'Visible Only'], 1);
+        this.rotationSelect = AddSelectItem (parametersDiv, 'Rotation', 'ov_last_rotation', ['No Rotation', '-90 Degrees', '90 Degrees'], 0);
     }
 
     ExportModel (model, callbacks)
@@ -91,30 +76,29 @@ export class ModelExporterUI extends ExporterUI
 
         let exporterModel = new ExporterModel (model, settings);
         if (exporterModel.MeshInstanceCount () === 0) {
-            let errorDialog = ShowMessageDialog (
+             ShowMessageDialog (
                 localize('exportFailed', 'Export Failed'),
-                localize("modelWithNoMeshes","The model doesn't contain any meshes."),
+                localize('modelWithNoMeshes', 'The model doesn\'t contain any meshes.'),
                 null
             );
-            callbacks.onDialog (errorDialog);
             return;
         }
 
         let progressDialog = new ProgressDialog ();
         progressDialog.Init (localize('exportingModel', 'Exporting Model'));
-        progressDialog.Show ();
+        progressDialog.Open ();
 
         RunTaskAsync (() => {
             let exporter = new Exporter ();
             exporter.Export (model, settings, this.format, this.extension, {
                 onError : () => {
-                    progressDialog.Hide ();
+                    progressDialog.Close ();
                 },
                 onSuccess : (files) => {
                     if (files.length === 0) {
-                        progressDialog.Hide ();
+                        progressDialog.Close ();
                     } else if (files.length === 1) {
-                        progressDialog.Hide ();
+                        progressDialog.Close ();
                         let file = files[0];
                         DownloadArrayBufferAsFile (file.GetBufferContent (), file.GetName ());
                     } else if (files.length > 1) {
@@ -125,10 +109,10 @@ export class ModelExporterUI extends ExporterUI
                             }
                             let zippedContent = fflate.zipSync (filesInZip);
                             let zippedBuffer = zippedContent.buffer;
-                            progressDialog.Hide ();
+                            progressDialog.Close ();
                             DownloadArrayBufferAsFile (zippedBuffer, 'model.zip');
                         }).catch (() => {
-                            progressDialog.Hide ();
+                            progressDialog.Close ();
                         });
                     }
                 }
@@ -137,46 +121,7 @@ export class ModelExporterUI extends ExporterUI
     }
 }
 
-export class ImageExporterUI extends ExporterUI
-{
-    constructor (name, extension)
-    {
-        super (name);
-        this.extension = extension;
-        this.sizeSelect = null;
-        this.sizes = [
-            { name : localize('currentSize', 'Current size'), value : null },
-            { name : '1280 x 720', value : [1280, 720] },
-            { name : '1920 x 1080', value : [1920, 1080] }
-        ];
-    }
-
-    GetType ()
-    {
-        return ExportType.Image;
-    }
-
-    GenerateParametersUI (parametersDiv)
-    {
-        let sizeNames = this.sizes.map (size => size.name);
-        this.sizeSelect = this.AddSelectItem (parametersDiv, localize('imageSize', 'Image size'), sizeNames, 1);
-    }
-
-    ExportImage (viewer)
-    {
-        let selectedSize = this.sizes[this.sizeSelect.selectedIndex];
-        let url = null;
-        if (selectedSize.value === null) {
-            let size = viewer.GetImageSize ();
-            url = viewer.GetImageAsDataUrl (size.width, size.height);
-        } else {
-            url = viewer.GetImageAsDataUrl (selectedSize.value[0], selectedSize.value[1]);
-        }
-        DownloadUrlAsFile (url, 'model.' + this.extension);
-    }
-}
-
-export class ExportDialog
+class ExportDialog
 {
     constructor (callbacks)
     {
@@ -194,11 +139,11 @@ export class ExportDialog
             new ModelExporterUI ('glTF Binary (.glb)', FileFormat.Binary, 'glb'),
             new ModelExporterUI ('Object File Format Text (.off)', FileFormat.Text, 'off'),
             new ModelExporterUI ('Rhinoceros 3D (.3dm)', FileFormat.Binary, '3dm'),
-            new ImageExporterUI ('PNG Image (.png)', 'png')
+            new ModelExporterUI ('Dotbim (.bim)', FileFormat.Text, 'bim')
         ];
     }
 
-    Show (model, viewer)
+    Open (model, viewer)
     {
         let mainDialog = new ButtonDialog ();
         let contentDiv = mainDialog.Init (localize('export', 'Export'), [
@@ -206,13 +151,13 @@ export class ExportDialog
                 name : localize('close', 'Close'),
                 subClass : 'outline',
                 onClick () {
-                    mainDialog.Hide ();
+                    mainDialog.Close ();
                 }
             },
             {
                 name : localize('export', 'Export'),
                 onClick : () => {
-                    mainDialog.Hide ();
+                    mainDialog.Close ();
                     this.ExportFormat (model, viewer);
                 }
             }
@@ -225,19 +170,12 @@ export class ExportDialog
         let formatRow = AddDiv (contentDiv, 'ov_dialog_row');
         this.parametersDiv = AddDiv (contentDiv);
         let formatNames = this.exporters.map (exporter => exporter.GetName ());
-        let defaultFormat = CookieGetStringVal ('ov_last_export_format', 'glTF Binary (.glb)');
-        let defaultFormatIndex = formatNames.indexOf (defaultFormat);
-        if (defaultFormatIndex === -1) {
-            defaultFormatIndex = 6;
-        }
-        AddSelect (formatRow, formatNames, defaultFormatIndex, (selectedIndex) => {
-            CookieSetStringVal ('ov_last_export_format', formatNames[selectedIndex]);
+        let formatSelector = AddSelectWithCookieSave (formatRow, 'ov_last_export_format', formatNames, 6, (selectedIndex) => {
             this.OnFormatSelected (selectedIndex);
         });
-        this.OnFormatSelected (defaultFormatIndex);
+        this.OnFormatSelected (formatSelector.selectedIndex);
 
-        mainDialog.Show ();
-        this.callbacks.onDialog (mainDialog);
+        mainDialog.Open ();
     }
 
     OnFormatSelected (selectedIndex)
@@ -249,18 +187,17 @@ export class ExportDialog
 
     ExportFormat (model, viewer)
     {
-        if (this.selectedExporter.GetType () === ExportType.Model) {
             this.selectedExporter.ExportModel (model, {
                 isMeshVisible : (meshInstanceId) => {
                     return this.callbacks.isMeshVisible (meshInstanceId);
-                },
-                onDialog : (filesDialog) => {
-                    this.callbacks.onDialog (filesDialog);
                 }
             });
             HandleEvent ('model_exported', this.selectedExporter.GetName ());
-        } else if (this.selectedExporter.GetType () === ExportType.Image) {
-            this.selectedExporter.ExportImage (viewer);
         }
     }
+
+export function ShowExportDialog (model, viewer, callbacks)
+{
+    let exportDialog = new ExportDialog (callbacks);
+    exportDialog.Open (model, viewer);
 }

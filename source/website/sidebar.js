@@ -60,9 +60,9 @@ export class Sidebar
             onThemeChange : () => {
                 this.callbacks.onThemeChange ();
             },
-            onLocaleChange: () => {
-                this.callbacks.onLocaleChange ();
-            }
+            onLocaleChange: (newUserLang) => {
+                this.callbacks.ChangeLocale(newUserLang);
+            },
         });
 
         InstallVerticalSplitter (this.splitterDiv, this.mainDiv, true, () => {
