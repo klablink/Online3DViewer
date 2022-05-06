@@ -1,15 +1,16 @@
 import { TaskRunner, RunTaskAsync, RunTasks, RunTasksBatch, WaitWhile } from './core/taskrunner.js';
 import { IsDefined, ValueOrDefault, CopyObjectAttributes } from './core/core.js';
-import { GetFileName, GetFileExtension, RequestUrl, ReadFile, TransformFileHostUrls, IsUrl, FileSource, FileFormat } from './io/fileutils.js';
+import { GetFileName, GetFileExtension, RequestUrl, ReadFile, TransformFileHostUrls, FileSource, FileFormat } from './io/fileutils.js';
 import { TextWriter } from './io/textwriter.js';
 import { BinaryReader } from './io/binaryreader.js';
 import { BinaryWriter } from './io/binarywriter.js';
 import { SetExternalLibLocation, GetExternalLibPath, LoadExternalLibrary } from './io/externallibs.js';
 import { ArrayBufferToUtf8String, ArrayBufferToAsciiString, AsciiStringToArrayBuffer, Utf8StringToArrayBuffer, Base64DataURIToArrayBuffer, GetFileExtensionFromMimeType, CreateObjectUrl, CreateObjectUrlWithMimeType, RevokeObjectUrl } from './io/bufferutils.js';
+import { MeasureTool } from './viewer/measuretool.js';
 import { UpVector, ShadingModel, Viewer, GetDefaultCamera, TraverseThreeObject, GetShadingTypeOfObject } from './viewer/viewer.js';
 import { EmbeddedViewer, Init3DViewerElement, Init3DViewerElements } from './viewer/embeddedviewer.js';
 import { MouseInteraction, TouchInteraction, ClickDetector, Navigation, NavigationType } from './viewer/navigation.js';
-import { GetIntegerFromStyle, GetDomElementExternalWidth, GetDomElementExternalHeight, GetDomElementInnerDimensions, GetDomElementClientCoordinates, CreateDomElement, AddDomElement, AddDiv, ClearDomElement, InsertDomElementBefore, InsertDomElementAfter, ShowDomElement, IsDomElementVisible, SetDomElementWidth, SetDomElementHeight, GetDomElementOuterWidth, GetDomElementOuterHeight, SetDomElementOuterWidth, SetDomElementOuterHeight, CreateDiv } from './viewer/domutils.js';
+import { GetIntegerFromStyle, GetDomElementExternalWidth, GetDomElementExternalHeight, GetDomElementInnerDimensions, GetDomElementClientCoordinates, CreateDomElement, AddDomElement, AddDiv, ClearDomElement, InsertDomElementBefore, InsertDomElementAfter, ShowDomElement, IsDomElementVisible, SetDomElementWidth, SetDomElementHeight, GetDomElementOuterWidth, GetDomElementOuterHeight, SetDomElementOuterWidth, SetDomElementOuterHeight, AddCheckbox, AddRangeSlider, AddSelect, AddToggle, CreateDiv } from './viewer/domutils.js';
 import { Camera, CameraIsEqual3D } from './viewer/camera.js';
 import { ViewerGeometry, ViewerExtraGeometry, SetThreeMeshPolygonOffset } from './viewer/viewergeometry.js';
 import { GetTriangleArea, GetTetrahedronSignedVolume, CalculateVolume, CalculateSurfaceArea } from './model/quantities.js';
@@ -17,7 +18,7 @@ import { Mesh } from './model/mesh.js';
 import { TextureMap, MaterialBase, FaceMaterial, PhongMaterial, PhysicalMaterial, TextureMapIsEqual, TextureIsEqual, MaterialType } from './model/material.js';
 import { IsModelEmpty, GetBoundingBox, GetTopology, IsSolid, HasDefaultMaterial, ReplaceDefaultMaterialColor } from './model/modelutils.js';
 import { Object3D, ModelObject3D } from './model/object.js';
-import { Property, PropertyGroup, PropertyToString, PropertyType } from './model/property.js';
+import { Property, PropertyGroup, PropertyType } from './model/property.js';
 import { GetMeshType, CalculateTriangleNormal, TransformMesh, FlipMeshTrianglesOrientation, MeshType } from './model/meshutils.js';
 import { Color, ColorComponentFromFloat, ColorFromFloatComponents, SRGBToLinear, LinearToSRGB, IntegerToHexString, ColorToHexString, HexStringToColor, ArrayToColor, ColorIsEqual } from './model/color.js';
 import { MeshInstanceId, MeshInstance } from './model/meshinstance.js';
@@ -39,7 +40,6 @@ import { Box3D, BoundingBoxCalculator3D } from './geometry/box3d.js';
 import { OctreeNode, Octree } from './geometry/octree.js';
 import { BezierTweenFunction, LinearTweenFunction, ParabolicTweenFunction, TweenCoord3D } from './geometry/tween.js';
 import { IsZero, IsLower, IsGreater, IsLowerOrEqual, IsGreaterOrEqual, IsEqual, IsEqualEps, IsPositive, IsNegative, Eps, BigEps, RadDeg, DegRad, Direction } from './geometry/geometry.js';
-import { ExporterBim } from './export/exporterbim.js';
 import { Exporter } from './export/exporter.js';
 import { ExporterObj } from './export/exporterobj.js';
 import { ExporterSettings, ExporterModel } from './export/exportermodel.js';
@@ -49,10 +49,9 @@ import { ExporterOff } from './export/exporteroff.js';
 import { Exporter3dm } from './export/exporter3dm.js';
 import { ExporterPly } from './export/exporterply.js';
 import { ExporterGltf } from './export/exportergltf.js';
-import { ColorToMaterialConverter, NameFromLine, ParametersFromLine, ReadLines, IsPowerOfTwo, NextPowerOfTwo, UpdateMaterialTransparency } from './import/importerutils.js';
+import { NameFromLine, ParametersFromLine, ReadLines, IsPowerOfTwo, NextPowerOfTwo, UpdateMaterialTransparency } from './import/importerutils.js';
 import { ImporterThreeSvg } from './import/importersvg.js';
 import { ImporterGltf } from './import/importergltf.js';
-import { ImporterBim } from './import/importerbim.js';
 import { ImporterObj } from './import/importerobj.js';
 import { Importer3ds } from './import/importer3ds.js';
 import { ImporterStl } from './import/importerstl.js';
@@ -84,7 +83,6 @@ export {
     RequestUrl,
     ReadFile,
     TransformFileHostUrls,
-    IsUrl,
     FileSource,
     FileFormat,
     TextWriter,
@@ -102,6 +100,7 @@ export {
     CreateObjectUrl,
     CreateObjectUrlWithMimeType,
     RevokeObjectUrl,
+    MeasureTool,
     UpVector,
     ShadingModel,
     Viewer,
@@ -135,6 +134,10 @@ export {
     GetDomElementOuterHeight,
     SetDomElementOuterWidth,
     SetDomElementOuterHeight,
+    AddCheckbox,
+    AddRangeSlider,
+    AddSelect,
+    AddToggle,
     CreateDiv,
     Camera,
     CameraIsEqual3D,
@@ -164,7 +167,6 @@ export {
     ModelObject3D,
     Property,
     PropertyGroup,
-    PropertyToString,
     PropertyType,
     GetMeshType,
     CalculateTriangleNormal,
@@ -258,7 +260,6 @@ export {
     RadDeg,
     DegRad,
     Direction,
-    ExporterBim,
     Exporter,
     ExporterObj,
     ExporterSettings,
@@ -270,7 +271,6 @@ export {
     Exporter3dm,
     ExporterPly,
     ExporterGltf,
-    ColorToMaterialConverter,
     NameFromLine,
     ParametersFromLine,
     ReadLines,
@@ -279,7 +279,6 @@ export {
     UpdateMaterialTransparency,
     ImporterThreeSvg,
     ImporterGltf,
-    ImporterBim,
     ImporterObj,
     Importer3ds,
     ImporterStl,
