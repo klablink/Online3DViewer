@@ -65,12 +65,6 @@ export class Sidebar
             },
         });
 
-        this.measurePanel.Init ({
-            onActivatedChange : (isActivated) => {
-                this.callbacks.onMeasureToolActivedChange (isActivated);
-            }
-        });
-
         InstallVerticalSplitter (this.splitterDiv, this.mainDiv, true, () => {
             this.callbacks.onResize ();
         });

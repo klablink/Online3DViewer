@@ -7,12 +7,12 @@ import { Exporter } from '../engine/export/exporter.js';
 import { ExporterModel, ExporterSettings } from '../engine/export/exportermodel.js';
 import { AddDiv, ClearDomElement } from '../engine/viewer/domutils.js';
 import { AddSelect } from '../website/utils.js';
-import { ButtonDialog, ProgressDialog } from './dialog.js';
-import { ShowMessageDialog } from './dialogs.js';
+import {ButtonDialog, ProgressDialog} from './dialog.js';
+import {ShowMessageDialog} from './dialogs.js';
 import { DownloadArrayBufferAsFile } from './utils.js';
 import { CookieGetStringVal, CookieSetStringVal } from './cookiehandler.js';
 import { HandleEvent } from './eventhandler.js';
-import {localize} from '../i18n/locale';
+import { localize } from '../i18n/locale';
 
 function AddSelectWithCookieSave (parentElement, cookieKey, options, defaultSelectedIndex, onChange)
 {
@@ -46,15 +46,15 @@ class ModelExporterUI
     GenerateParametersUI (parametersDiv)
     {
         function AddSelectItem (parametersDiv, name, cookieKey, values, defaultIndex)
-    {
-        let parameterRow = AddDiv (parametersDiv, 'ov_dialog_row');
-        AddDiv (parameterRow, 'ov_dialog_row_name', name);
-        let parameterValueDiv = AddDiv (parameterRow, 'ov_dialog_row_value');
-            return AddSelectWithCookieSave (parameterValueDiv, cookieKey, values, defaultIndex);
-}
+        {
+            let parameterRow = AddDiv (parametersDiv, 'ov_dialog_row');
+            AddDiv (parameterRow, 'ov_dialog_row_name', name);
+            let parameterValueDiv = AddDiv (parameterRow, 'ov_dialog_row_value');
+                return AddSelectWithCookieSave (parameterValueDiv, cookieKey, values, defaultIndex);
+        }
 
-        this.visibleOnlySelect = AddSelectItem (parametersDiv, 'Scope', 'ov_last_scope', ['Entire Model', 'Visible Only'], 1);
-        this.rotationSelect = AddSelectItem (parametersDiv, 'Rotation', 'ov_last_rotation', ['No Rotation', '-90 Degrees', '90 Degrees'], 0);
+        this.visibleOnlySelect = AddSelectItem (parametersDiv, localize('scope', 'Scope'), 'ov_last_scope', [localize('entireModel', 'Entire Model'), localize('visibleOnly', 'Visible Only')], 1);
+        this.rotationSelect = AddSelectItem (parametersDiv, localize('rotation', 'Rotation'), [localize('noRotation', 'No Rotation'), localize('-90Degrees', '-90 Degrees'), localize('+90Degrees', '90 Degrees')], 0);
     }
 
     ExportModel (model, callbacks)
@@ -187,14 +187,14 @@ class ExportDialog
 
     ExportFormat (model, viewer)
     {
-            this.selectedExporter.ExportModel (model, {
-                isMeshVisible : (meshInstanceId) => {
-                    return this.callbacks.isMeshVisible (meshInstanceId);
-                }
-            });
-            HandleEvent ('model_exported', this.selectedExporter.GetName ());
-        }
+        this.selectedExporter.ExportModel (model, {
+            isMeshVisible : (meshInstanceId) => {
+                return this.callbacks.isMeshVisible (meshInstanceId);
+            }
+        });
+        HandleEvent ('model_exported', this.selectedExporter.GetName ());
     }
+}
 
 export function ShowExportDialog (model, viewer, callbacks)
 {

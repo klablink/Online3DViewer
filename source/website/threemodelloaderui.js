@@ -1,21 +1,18 @@
-import { AddDiv } from '../engine/viewer/domutils.js';
-import { ThreeModelLoader } from '../engine/threejs/threemodelloader.js';
-import { ShowMessageDialog } from './dialogs.js';
-import { ButtonDialog, ProgressDialog } from './dialog.js';
+import {AddDiv} from '../engine/viewer/domutils.js';
+import {ThreeModelLoader} from '../engine/threejs/threemodelloader.js';
+import {ShowMessageDialog} from './dialogs.js';
+import {ButtonDialog, ProgressDialog} from './dialog.js';
 import {AddSvgIconElement} from './utils.js';
 import {ImportErrorCode} from '../engine/import/importer.js';
 import {localize} from '../i18n/locale';
 
-export class ThreeModelLoaderUI
-{
-    constructor ()
-    {
+export class ThreeModelLoaderUI {
+    constructor() {
         this.modelLoader = new ThreeModelLoader();
         this.modalDialog = null;
     }
 
-    LoadModel (files, fileSource, settings, callbacks)
-    {
+    LoadModel(files, fileSource, settings, callbacks) {
         if (this.modelLoader.InProgress()) {
             return;
         }
@@ -43,32 +40,29 @@ export class ThreeModelLoaderUI
                 progressDialog.SetText(localize('visualizingModel', 'Visualizing Model'));
             },
             onModelFinished: (importResult, threeObject) => {
-                progressDialog.Close ();
+                progressDialog.Close();
                 callbacks.onFinish(importResult, threeObject);
             },
             onTextureLoaded: () => {
                 callbacks.onRender();
             },
             onLoadError: (importError) => {
-                progressDialog.Close ();
+                progressDialog.Close();
                 callbacks.onError(importError);
                 this.modalDialog = this.ShowErrorDialog(importError);
             },
         });
     }
 
-    GetModelLoader ()
-    {
+    GetModelLoader() {
         return this.modelLoader;
     }
 
-    GetImporter ()
-    {
+    GetImporter() {
         return this.modelLoader.GetImporter();
     }
 
-    ShowErrorDialog (importError)
-    {
+    ShowErrorDialog(importError) {
         if (importError.code === ImportErrorCode.NoImportableFile) {
             return ShowMessageDialog(
                 localize('somethingWentWrong', 'Something went wrong'),
@@ -96,15 +90,14 @@ export class ThreeModelLoaderUI
         }
     }
 
-    ShowFileSelectorDialog (fileNames, onSelect)
-    {
+    ShowFileSelectorDialog(fileNames, onSelect) {
         let dialog = new ButtonDialog();
         let contentDiv = dialog.Init(localize('selectModel', 'Select Model'), [
             {
                 name: localize('cancel', 'Cancel'),
                 subClass: 'outline',
                 onClick() {
-                    dialog.Close ();
+                    dialog.Close();
                 }
             }
         ]);
@@ -126,19 +119,18 @@ export class ThreeModelLoaderUI
             AddDiv(fileLink, 'ov_dialog_file_link_text', fileName);
             fileLink.addEventListener('click', () => {
                 dialog.SetCloseHandler(null);
-                dialog.Close ();
+                dialog.Close();
                 onSelect(i);
             });
         }
 
-        dialog.Open ();
+        dialog.Open();
         return dialog;
     }
 
-    CloseDialogIfOpen ()
-    {
+    CloseDialogIfOpen() {
         if (this.modalDialog !== null) {
-            this.modalDialog.Close ();
+            this.modalDialog.Close();
             this.modalDialog = null;
         }
     }

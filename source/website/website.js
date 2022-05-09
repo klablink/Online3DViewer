@@ -570,17 +570,17 @@ export class Website
             }
         });
         AddSeparator(this.toolbar, ['only_full_width', 'only_on_model']);
-        let measureToolButton = AddPushButton(this.toolbar, 'measure', 'Measure', ['only_full_width', 'only_on_model'], (isSelected) => {
+        let measureToolButton = AddPushButton(this.toolbar, 'measure', localize('measure', 'Measure'), ['only_full_width', 'only_on_model'], (isSelected) => {
             HandleEvent('measure_tool_activated', isSelected ? 'on' : 'off');
             this.navigator.SetSelection(null);
             this.measureTool.SetActive(isSelected);
         });
         this.measureTool.SetButton(measureToolButton);
         AddSeparator(this.toolbar, ['only_full_width', 'only_on_model']);
-        AddButton(this.toolbar, 'snapshot', 'Create snapshot', ['only_full_width', 'only_on_model'], () => {
+        AddButton(this.toolbar, 'snapshot', localize('createSnapshot', 'Create snapshot'), ['only_full_width', 'only_on_model'], () => {
             ShowSnapshotDialog(this.viewer);
         });
-        AddButton(this.toolbar, 'export', 'Export model', ['only_full_width', 'only_on_model'], () => {
+        AddButton(this.toolbar, 'export', localize('exportModel', 'Export model'), ['only_full_width', 'only_on_model'], () => {
             ShowExportDialog(this.model, this.viewer, {
                 isMeshVisible: (meshInstanceId) => {
                     return this.navigator.IsMeshVisible(meshInstanceId);

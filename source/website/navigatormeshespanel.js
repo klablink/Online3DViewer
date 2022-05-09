@@ -5,7 +5,7 @@ import { CalculatePopupPositionToElementBottomRight, ShowListPopup } from './dia
 import { MeshItem, NavigatorItemRecurse, NodeItem } from './navigatoritems.js';
 import { NavigatorPanel, NavigatorPopupButton } from './navigatorpanel.js';
 import { AddSvgIconElement, GetMaterialName, GetMeshName, GetNodeName, SetSvgIconImageElement } from './utils.js';
-import {localize} from "../i18n/locale";
+import { localize } from '../i18n/locale';
 
 const MeshesPanelMode =
 {
@@ -258,7 +258,7 @@ export class NavigatorMeshesPanel extends NavigatorPanel
                 iconDiv : null
             },
             showHideMeshes : {
-                name : localize('showHideMeshes','Show/hide meshes'),
+                name : localize('showHideMeshes', 'Show/hide meshes'),
                 icon : 'visible',
                 div : null,
                 iconDiv : null

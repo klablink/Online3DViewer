@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import * as OV from '../../source/engine/main.js';
 import { ImportObjFile } from '../utils/testfiles.js';
 import { ModelToObject, ModelToObjectSimple } from '../utils/testutils.js';
-import {localize} from "../../source/i18n/locale";
+import { localize } from '../../source/i18n/locale';
 
 export default function suite ()
 {

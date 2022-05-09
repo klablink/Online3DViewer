@@ -5,7 +5,7 @@ import { FileSource, TransformFileHostUrls } from '../io/fileutils.js';
 import { ParameterConverter } from '../parameters/parameterlist.js';
 import { ThreeModelLoader } from '../threejs/threemodelloader.js';
 import { Viewer } from './viewer.js';
-import {localize} from "../../i18n/locale";
+import { localize } from '../../i18n/locale';
 
 export class EmbeddedViewer
 {

@@ -2,7 +2,7 @@ import { Color, ColorToHexString } from '../engine/model/color.js';
 import { CreateObjectUrl } from '../engine/io/bufferutils.js';
 import { AddDiv, CreateDiv, AddDomElement, GetDomElementOuterWidth, SetDomElementOuterWidth } from '../engine/viewer/domutils.js';
 import { CreateVerticalSplitter } from './splitter.js';
-import { localize } from "../i18n/locale.js";
+import { localize } from '../i18n/locale.js';
 
 export function GetNameOrDefault (originalName, defaultName)
 {

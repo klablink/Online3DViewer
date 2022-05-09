@@ -11,7 +11,7 @@ import { PhysicalMaterial } from '../model/material.js';
 import { Node, NodeType } from '../model/node.js';
 import { Property, PropertyGroup, PropertyType } from '../model/property.js';
 import { ImporterBase } from './importerbase.js';
-import {localize} from "../../i18n/locale";
+import { localize } from '../../i18n/locale';
 
 export class ImporterO3dv extends ImporterBase
 {

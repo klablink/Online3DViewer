@@ -11,7 +11,7 @@ import { ConvertThreeGeometryToMesh } from '../threejs/threeutils.js';
 import { ImporterBase } from './importerbase.js';
 import { UpdateMaterialTransparency } from './importerutils.js';
 import { TextureMap } from '../model/material.js';
-import {localize} from '../../i18n/locale';
+import { localize } from '../../i18n/locale';
 
 export class Importer3dm extends ImporterBase
 {

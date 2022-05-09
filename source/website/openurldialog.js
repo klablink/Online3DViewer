@@ -1,7 +1,7 @@
 import { ReadLines } from '../engine/import/importerutils.js';
 import { AddDiv, CreateDomElement } from '../engine/viewer/domutils.js';
 import { ButtonDialog } from './dialog.js';
-import {localize} from '../i18n/locale';
+import { localize } from '../i18n/locale';
 
 export function ShowOpenUrlDialog (onOk)
 {

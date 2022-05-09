@@ -1,5 +1,5 @@
 import { ArrayBufferToUtf8String, Utf8StringToArrayBuffer } from '../io/bufferutils.js';
-import {localize} from "../../i18n/locale";
+import { localize } from '../../i18n/locale';
 
 export class ExportedFile
 {

@@ -1,6 +1,6 @@
 import { Color } from '../engine/model/color.js';
 import { CookieGetBoolVal, CookieGetColorVal, CookieGetIntVal, CookieGetStringVal, CookieSetBoolVal, CookieSetColorVal, CookieSetIntVal, CookieSetStringVal } from './cookiehandler.js';
-import {defaultLocale} from "../i18n/locale";
+import { defaultLocale } from '../i18n/locale';
 
 export const Theme =
 {

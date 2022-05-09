@@ -8,7 +8,7 @@ import { Mesh } from '../model/mesh.js';
 import { Triangle } from '../model/triangle.js';
 import { ImporterBase } from './importerbase.js';
 import { NameFromLine, ParametersFromLine, ReadLines, UpdateMaterialTransparency } from './importerutils.js';
-import {localize} from "../../i18n/locale";
+import { localize } from '../../i18n/locale';
 
 class ObjMeshConverter
 {

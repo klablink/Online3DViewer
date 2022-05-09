@@ -3,7 +3,7 @@ import { CalculatePopupPositionToElementBottomRight, ShowListPopup } from './dia
 import { MaterialItem } from './navigatoritems.js';
 import { NavigatorPanel, NavigatorPopupButton } from './navigatorpanel.js';
 import { GetMaterialName, GetMeshName } from './utils.js';
-import {localize} from "../i18n/locale";
+import { localize } from '../i18n/locale';
 
 class NavigatorMeshesPopupButton extends NavigatorPopupButton
 {

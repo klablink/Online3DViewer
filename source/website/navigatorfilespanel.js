@@ -1,7 +1,7 @@
 import { SetDomElementHeight, GetDomElementOuterHeight } from '../engine/viewer/domutils.js';
 import { NavigatorPanel } from './navigatorpanel.js';
 import { TreeViewButton, TreeViewButtonItem, TreeViewGroupItem, TreeViewSingleItem } from './treeview.js';
-import {localize} from "../i18n/locale";
+import { localize } from '../i18n/locale';
 
 export class NavigatorFilesPanel extends NavigatorPanel
 {

@@ -10,7 +10,7 @@ import { Property, PropertyGroup, PropertyType } from '../model/property.js';
 import { Triangle } from '../model/triangle.js';
 import { ImporterBase } from './importerbase.js';
 import { UpdateMaterialTransparency } from './importerutils.js';
-import {localize} from "../../i18n/locale";
+import { localize } from '../../i18n/locale';
 
 export class ImporterIfc extends ImporterBase
 {
@@ -167,9 +167,9 @@ export class ImporterIfc extends ImporterBase
                         case 'IFCLOGICAL':
                             strValue = localize('unknown', 'Unknown');
                             if (property.NominalValue.value === 'T') {
-                                strValue = localize('true','True');
+                                strValue = localize('true', 'True');
                             } else if (property.NominalValue.value === 'F') {
-                                strValue = localize('false','False');
+                                strValue = localize('false', 'False');
                             }
                             elemProperty = new Property (PropertyType.Text, propertyName, strValue);
                             break;

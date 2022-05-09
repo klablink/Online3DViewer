@@ -1,6 +1,7 @@
 import { BigEps, IsEqualEps, RadDeg } from '../engine/geometry/geometry.js';
 import { AddDiv, ClearDomElement } from '../engine/viewer/domutils.js';
 import { AddSvgIconElement, IsDarkTextNeededForColor } from './utils.js';
+import { localize } from '../i18n/locale.js';
 
 function GetFaceWorldNormal (intersection)
 {
@@ -205,21 +206,21 @@ export class MeasureTool
             this.panel.style.color = '#ffffff';
         }
         if (this.markers.length === 0) {
-            this.panel.innerHTML = 'Select a point.';
+            this.panel.innerHTML = localize( 'selectPoint', 'Select a point.');
         } else if (this.markers.length === 1) {
-            this.panel.innerHTML = 'Select another point.';
+            this.panel.innerHTML = localize('selectAnotherPoint', 'Select another point.');
         } else {
             let calcResult = CalculateMarkerValues (this.markers[0], this.markers[1]);
 
             if (calcResult.pointsDistance !== null) {
-                AddValue (this.panel, 'measure_distance', 'Distance of points', calcResult.pointsDistance.toFixed (3));
+                AddValue (this.panel, 'measure_distance', localize('distanceOfPoints', 'Distance of points'), calcResult.pointsDistance.toFixed (3));
             }
             if (calcResult.parallelFacesDistance !== null) {
-                AddValue (this.panel, 'measure_distance_parallel', 'Distance of parallel faces', calcResult.parallelFacesDistance.toFixed (3));
+                AddValue (this.panel, 'measure_distance_parallel', localize('distanceOfParallelFaces', 'Distance of parallel faces'), calcResult.parallelFacesDistance.toFixed (3));
             }
             if (calcResult.facesAngle !== null) {
                 let degreeValue = calcResult.facesAngle * RadDeg;
-                AddValue (this.panel, 'measure_angle', 'Angle of faces', degreeValue.toFixed (1) + '\xB0');
+                AddValue (this.panel, 'measure_angle', localize('angleOfFaces', 'Angle of faces'), degreeValue.toFixed (1) + '\xB0');
             }
         }
     }

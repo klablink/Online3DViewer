@@ -1,13 +1,14 @@
 import _ from 'lodash';
-import {CookieGetStringVal, CookieSetStringVal} from "../website/cookiehandler";
+import {CookieGetStringVal, CookieSetStringVal} from '../website/cookiehandler';
 
-export const availableLocales = ["en", "it"];
-export const defaultLocale = "en";
+export const availableLocales = ['en', 'it'];
+export const defaultLocale = 'en';
 
 const _translations = {};
+// eslint-disable-next-line no-undef
 _translations.en = require('./en.i18n.json');
+// eslint-disable-next-line no-undef
 _translations.it = require('./it.i18n.json');
-// console.log(_translations);
 
 export function isNotEmpty(item) {
     let returnedValue = true;
@@ -67,10 +68,10 @@ export function encodeEscapeParams(messageId, params) {
     const res = _.mapValues(params, encodeURIComponent);
     return messageId + _.reduce(res, function (result, value, key) {
         if (!isNotEmpty(value))
-            value = '%20'
+            value = '%20';
         result = isNotEmpty(result) ? (result + `&${key}=${value}`) : `?${key}=${value}`;
         return result;
-    }, "");
+    }, '');
 }
 
 /**
@@ -144,7 +145,7 @@ export function decodeStringAndTranslate(lang, str, dft) {
 
             attr && trValue && (r[attr] = trValue);
             return r;
-        }, {})
+        }, {});
 
         let retStr = _localize(lang, code, dft, result);
 
@@ -184,7 +185,5 @@ export function localize(messageId, defaultMsg, params = {}) {
 
     return res;
 }
-
-
 
 

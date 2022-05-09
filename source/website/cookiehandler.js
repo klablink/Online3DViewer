@@ -27,7 +27,7 @@ export function CookieGetBoolVal (key, defVal)
     if (stringVal === null) {
         return defVal;
     }
-    return stringVal === 'true' ? true : false;
+    return stringVal === 'true';
 }
 
 export function CookieSetBoolVal (key, value)
