@@ -1,7 +1,6 @@
 import {AddDiv, CreateDomElement} from '../engine/viewer/domutils.js';
-import { AddNumberInput, AddRadioButton } from '../website/utils.js';
+import {AddNumberInput, AddRadioButton, DownloadUrlAsFile, InstallTooltip} from './utils.js';
 import {ButtonDialog} from './dialog.js';
-import { DownloadUrlAsFile } from './utils.js';
 import {CookieGetIntVal, CookieGetStringVal, CookieSetIntVal, CookieSetStringVal} from './cookiehandler.js';
 import {HandleEvent} from './eventhandler.js';
 import {localize} from '../i18n/locale.js';
@@ -22,8 +21,7 @@ export function ShowSnapshotDialog(viewer) {
     }
 
     function UpdatePreview(viewer, previewImage, size) {
-        let url = GetImageUrl(viewer, size);
-        previewImage.src = url;
+        previewImage.src = GetImageUrl(viewer, size);
     }
 
     function UpdateCustomStatus(sizes, customIndex, selectedIndex) {
@@ -88,18 +86,28 @@ export function ShowSnapshotDialog(viewer) {
             }
         },
         {
+            name: localize('toLink', 'To Link'),
+            subClass: 'outline',
+            tooltip: localize('saveInSection', 'Save snapshot in Link Section'),
+            onClick() {
+                dialog.Close();
+                let url = GetImageUrl(viewer, GetSize(sizes, selectedIndex));
+                if(url !== null)
+                    HandleEvent('snapshot_inSection', sizes[selectedIndex].name, {'url':url});
+            }
+        },
+        {
             name: localize('create', 'Create'),
             onClick() {
                 dialog.Close();
-                HandleEvent('snapshot_created', sizes[selectedIndex].name);
                 let url = GetImageUrl(viewer, GetSize(sizes, selectedIndex));
+                HandleEvent('snapshot_created', sizes[selectedIndex].name, {'url':url});
                 if (url !== null) {
                     DownloadUrlAsFile(url, 'model.png');
                 }
             }
         }
     ]);
-
     let optionsDiv = AddDiv(contentDiv, 'ov_snapshot_dialog_left');
     let previewImage = CreateDomElement('img', 'ov_snapshot_dialog_preview');
 

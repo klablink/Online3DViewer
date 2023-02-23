@@ -115,6 +115,7 @@
   "resetToDefault": " Ripristina il default",
   "rotation": "Rotazione",
   "roughness": "Ruvidità",
+  "saveInSection": "Salva lo snapshot nella Sezione del documento Link",
   "scope": "Ambito",
   "selectAnotherPoint": "Seleziona un altro punto",
   "selectFormatFromList": "Seleziona il formato dalla lista sottostante e regola le impostazioni del formato selezionato",
@@ -140,6 +141,7 @@
   "specular": "Speculare",
   "specularMap": "Mappa speculare",
   "surface": "Superficie",
+  "toLink": "A Link",
   "type": "Tipo",
   "treeView": "Vista ad albero",
   "triangles": "Triangoli",
@@ -157,5 +159,5 @@
   "visualizingModel": "Visualizzazione modello",
   "visualizingModel...": "Visualizzazione modello...",
   "volume": "Volume",
-  "width": "Larghezza"
+  "width": "Largh."
 }

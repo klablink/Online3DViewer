@@ -26,12 +26,12 @@ export function escapeHtml(str) {
             '<': '&lt;',
             '>': '&gt;',
             '"': '&quot;',
-            "'": '&#039;',
-            "%": '&percnt;'
+            '\'': '&#039;',
+            '%': '&percnt;'
         };
-    return isNotEmpty(str) ? str.replace(/[&<>"'%]/g, function (m) {
+    return isNotEmpty(str) ? str.replace(/[&<>"'%]/g, (m) => {
         return map[m];
-    }) : "";
+    }) : '';
 }
 
 export function decodeHtml(str) {
@@ -41,13 +41,13 @@ export function decodeHtml(str) {
             '&lt;': '<',
             '&gt;': '>',
             '&quot;': '"',
-            '&#039;': "'",
-            '&percnt;': "%"
+            '&#039;': '\'',
+            '&percnt;': '%'
 
         };
-    return isNotEmpty(str) ? str.replace(/&amp;|&lt;|&gt;|&quot;|&#039;|&percnt;/g, function (m) {
+    return isNotEmpty(str) ? str.replace(/&amp;|&lt;|&gt;|&quot;|&#039;|&percnt;/g, (m) => {
         return map[m];
-    }) : "";
+    }) : '';
 }
 
 /**
@@ -66,7 +66,7 @@ export function decodeHtml(str) {
  */
 export function encodeEscapeParams(messageId, params) {
     const res = _.mapValues(params, encodeURIComponent);
-    return messageId + _.reduce(res, function (result, value, key) {
+    return messageId + _.reduce(res, (result, value, key) => {
         if (!isNotEmpty(value))
             value = '%20';
         result = isNotEmpty(result) ? (result + `&${key}=${value}`) : `?${key}=${value}`;
@@ -128,10 +128,10 @@ export function _localize(lang, messageId, defaultMsg, params = {}) {
 export function decodeStringAndTranslate(lang, str, dft) {
     if (!isNotEmpty(str)) {
         return {
-            "translatedStr": decodeHtml(dft),
-            "code": null,
-            "params": null,
-            "message": (_.isString(dft) ? decodeHtml(dft) : null)
+            'translatedStr': decodeHtml(dft),
+            'code': null,
+            'params': null,
+            'message': (_.isString(dft) ? decodeHtml(dft) : null)
         };
     }
 
@@ -150,17 +150,17 @@ export function decodeStringAndTranslate(lang, str, dft) {
         let retStr = _localize(lang, code, dft, result);
 
         return {
-            "translatedStr": decodeHtml(decodeURIComponent(retStr)),
-            "code": code,
-            "params": params,
-            "message": (_.isString(dft) ? decodeHtml(dft) : null)
+            'translatedStr': decodeHtml(decodeURIComponent(retStr)),
+            'code': code,
+            'params': params,
+            'message': (_.isString(dft) ? decodeHtml(dft) : null)
         };
     } catch (err) {
         return {
-            "translatedStr": `ERROR in decoding and translating ${str}`,
-            "code": null,
-            "params": null,
-            "message": (_.isString(dft) ? decodeHtml(dft) : null)
+            'translatedStr': `ERROR in decoding and translating ${str}`,
+            'code': null,
+            'params': null,
+            'message': (_.isString(dft) ? decodeHtml(dft) : null)
         };
     }
 }

@@ -1,5 +1,5 @@
 import { AddDiv, CreateDiv } from '../engine/viewer/domutils.js';
-import { AddSvgIconElement, CreateInlineColorCircle, IsHoverEnabled } from './utils.js';
+import {AddSvgIconElement, CreateInlineColorCircle, InstallTooltip, IsHoverEnabled} from './utils.js';
 
 let currentDialog = null;
 
@@ -167,6 +167,9 @@ export class ButtonDialog extends Dialog
             let buttonDiv = AddDiv (buttonsDiv, 'ov_button ov_dialog_button', button.name);
             if (button.subClass) {
                 buttonDiv.classList.add (button.subClass);
+            }
+            if(button.tooltip) {
+                InstallTooltip(buttonDiv, button.tooltip);
             }
             buttonDiv.addEventListener ('click', () => {
                 button.onClick ();
