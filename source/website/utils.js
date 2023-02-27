@@ -81,6 +81,7 @@ export function InstallTooltip (element, text)
     let tooltip = null;
     element.addEventListener ('mouseover', () => {
         tooltip = AddDiv (document.body, 'ov_tooltip', text);
+        tooltip.id = 'tooltip';
         let offset = CalculateOffset (element, tooltip);
         tooltip.style.left = offset.left + 'px';
         tooltip.style.top = offset.top + 'px';

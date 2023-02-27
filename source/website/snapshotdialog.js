@@ -1,5 +1,5 @@
 import {AddDiv, CreateDomElement} from '../engine/viewer/domutils.js';
-import {AddNumberInput, AddRadioButton, DownloadUrlAsFile, InstallTooltip} from './utils.js';
+import {AddNumberInput, AddRadioButton, DownloadUrlAsFile} from './utils.js';
 import {ButtonDialog} from './dialog.js';
 import {CookieGetIntVal, CookieGetStringVal, CookieSetIntVal, CookieSetStringVal} from './cookiehandler.js';
 import {HandleEvent} from './eventhandler.js';
@@ -90,6 +90,8 @@ export function ShowSnapshotDialog(viewer) {
             subClass: 'outline',
             tooltip: localize('saveInSection', 'Save snapshot in Link Section'),
             onClick() {
+                let t = document.getElementById('tooltip');
+                if(t) t.remove ();
                 dialog.Close();
                 let url = GetImageUrl(viewer, GetSize(sizes, selectedIndex));
                 if(url !== null)
